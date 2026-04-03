@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AISolutionsHub - Video Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #6366f1, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 40px; }
+    .form-group { margin-bottom: 24px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; }
+    .hint {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    .feature-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: white;
+      width: 100%;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-add {
+      background: transparent;
+      border: 1px dashed #6366f1;
+      color: #6366f1;
+      width: 100%;
+    }
+
+    /* Canvas preview */
+    #canvas-container {
+      margin-top: 40px;
+      text-align: center;
+      display: none;
+    }
+    #video-canvas {
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      max-width: 100%;
+      background: #000;
+    }
+
+    /* Progress panel */
+    .progress-panel {
+      margin-top: 20px;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      display: none;
+    }
+    .progress-panel.active { display: block; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .progress-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-value {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #334155;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #818cf8);
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    .progress-status {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    /* Console log */
+    .console {
+      margin-top: 16px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.75rem;
+    }
+    .console-line {
+      margin-bottom: 4px;
+      display: flex;
+      gap: 8px;
+    }
+    .console-time { color: #64748b; }
+    .console-info { color: #60a5fa; }
+    .console-success { color: #34d399; }
+    .console-error { color: #f87171; }
+    .console-warn { color: #fbbf24; }
+
+    /* Download */
+    .download-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(52, 211, 153, 0.05));
+      border: 1px solid #34d399;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+    }
+    .download-section.active { display: block; }
+    .download-title {
+      color: #34d399;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .download-info {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    .download-btn {
+      display: inline-block;
+      padding: 16px 32px;
+      background: #34d399;
+      color: #0f172a;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+    .download-btn:hover { background: #6ee7b7; transform: translateY(-2px); }
+    .btn-another {
+      margin-top: 12px;
+      background: transparent;
+      border: 1px solid #6366f1;
+      color: #6366f1;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AISolutionsHub Video Generator</h1>
+    <p class="subtitle">Create promotional videos in your browser - 100% free!</p>
+
+    <form id="videoForm">
+      <div class="form-group">
+        <label>Platform</label>
+        <select name="platform" required>
+          <option value="instagram">Instagram Reels (9:16) - Best for viral reach</option>
+          <option value="tiktok">TikTok (9:16) - Younger audience</option>
+          <option value="youtube">YouTube Shorts (9:16) - SEO + discovery</option>
+          <option value="linkedin">LinkedIn (16:9) - B2B professionals</option>
+          <option value="twitter">Twitter/X (16:9) - Tech community</option>
+        </select>
+        <div class="hint">Choose based on your target audience</div>
+      </div>
+
+      <div class="form-group">
+        <label>Video Duration</label>
+        <select name="duration" id="durationSelect">
+          <option value="8">8 seconds (Quick promo)</option>
+          <option value="12" selected>12 seconds (Standard)</option>
+          <option value="15">15 seconds (Detailed)</option>
+          <option value="20">20 seconds (Full story)</option>
+        </select>
+        <div class="hint" id="durationHint">~12-18 seconds to render</div>
+      </div>
+
+      <div class="form-group">
+        <label>Hook (attention grabber)</label>
+        <input type="text" name="hook" placeholder="e.g., Stop Wasting 3 Hours Daily on Manual Tasks" required>
+        <div class="hint">First 3 seconds matter! Use a pain point or curiosity. Max 8-10 words.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Features (what makes you special)</label>
+        <div id="featuresContainer">
+          <div class="feature-row">
+            <input type="text" placeholder="⚡" name="icon_0" title="Emoji icon">
+            <input type="text" placeholder="5-Minute Setup" name="title_0" title="Feature name (2-4 words)">
+            <input type="text" placeholder="Go from zero to live in minutes" name="desc_0" title="Benefit">
+          </div>
+          <div class="feature-row">
+            <input type="text" placeholder="🤖" name="icon_1" title="Emoji icon">
+            <input type="text" placeholder="AI-Powered" name="title_1" title="Feature name">
+            <input type="text" placeholder="Let AI handle repetitive work" name="desc_1" title="Benefit">
+          </div>
+          <div class="feature-row">
+            <input type="text" placeholder="🔒" name="icon_2" title="Emoji icon">
+            <input type="text" placeholder="Enterprise Security" name="title_2" title="Feature name">
+            <input type="text" placeholder="Bank-level encryption" name="desc_2" title="Benefit">
+          </div>
+        </div>
+        <div class="hint">Add 2-4 features. Use emojis. Focus on benefits.</div>
+        <button type="button" class="btn btn-add" onclick="addFeature()">+ Add Feature</button>
+      </div>
+
+      <div class="form-group">
+        <label>Call to Action</label>
+        <input type="text" name="ctaText" placeholder="e.g., Start Free Today" value="Start Free Today" required>
+        <div class="hint">Action verbs: Start, Get, Try, Join. Max 20 chars.</div>
+      </div>
+
+      <div class="form-group">
+        <label>AI Prompt (optional)</label>
+        <textarea name="prompt" placeholder="e.g., Create a video about AI automation for small businesses" rows="3"></textarea>
+        <div class="hint">Let AI generate your video content, or fill fields manually below</div>
+      </div>
+
+      <div class="form-group">
+        <label>Quality</label>
+        <select name="quality">
+          <option value="standard">Standard (720p, fast)</option>
+          <option value="high" selected>High (720p, best quality)</option>
+          <option value="ultra">Ultra (1080p, slower)</option>
+        </select>
+        <div class="hint">Higher quality = longer render time</div>
+      </div>
+
+      <div class="form-group">
+        <label>Visual Style</label>
+        <select name="visualStyle" id="visualStyle">
+          <option value="dynamic">🎨 Dynamic - Animated shapes, vibrant gradients</option>
+          <option value="corporate">💼 Corporate - Professional, clean, executive</option>
+          <option value="minimal">⬜ Minimal - Clean white, typography-focused</option>
+          <option value="tech">💚 Tech - Grid patterns, futuristic, circuit</option>
+          <option value="bold">🔥 Bold - Vibrant colors, kinetic typography</option>
+        </select>
+        <div class="hint">Each style has unique backgrounds, transitions, and animations</div>
+      </div>
+
+      <div class="form-group">
+        <label>Audio Narration</label>
+        <select name="audioEnabled" id="audioEnabled">
+          <option value="false">No audio</option>
+          <option value="true">Add voice narration</option>
+        </select>
+        <div class="hint">Voice will read your hook and features</div>
+      </div>
+
+      <div class="form-group">
+        <label>Primary Color</label>
+        <input type="color" name="primaryColor" value="#6366f1">
+      </div>
+
+      <div class="form-group">
+        <label>Secondary Color</label>
+        <input type="color" name="secondaryColor" value="#818cf8">
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="generateBtn">Generate Video</button>
+    </form>
+
+    <!-- Canvas Preview -->
+    <div id="canvas-container">
+      <canvas id="video-canvas"></canvas>
+    </div>
+
+    <!-- Progress Panel -->
+    <div class="progress-panel" id="progressPanel">
+      <div class="progress-header">
+        <span class="progress-title" id="progressTitle">Rendering...</span>
+        <div class="progress-stats">
+          <div class="stat">Frame: <span class="stat-value" id="statFrame">0/0</span></div>
+          <div class="stat">Time: <span class="stat-value" id="statTime">0s</span></div>
+          <div class="stat">ETA: <span class="stat-value" id="statETA">--</span></div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-status" id="progressStatus">Initializing...</div>
+      <div class="console" id="console"></div>
+    </div>
+
+    <!-- Download Section -->
+    <div class="download-section" id="downloadSection">
+      <div class="download-title">Video Ready!</div>
+      <div class="download-info" id="downloadInfo"></div>
+      <a id="downloadLink" class="download-btn" download>Download Video</a>
+      <br>
+      <button class="btn-another" onclick="resetForm()">Generate Another Video</button>
+    </div>
+  </div>
+
+  <script>
+    let featureCount = 3;
+    let isRendering = false;
+
+    // Console logger
+    function log(msg, type = 'info') {
+      const console = document.getElementById('console');
+      const time = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.className = 'console-line';
+      line.innerHTML = `
+        <span class="console-time">${time}</span>
+        <span class="console-${type}">${msg}</span>
+      `;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+
+    // Duration hint updater
+    document.getElementById('durationSelect').addEventListener('change', (e) => {
+      const dur = parseInt(e.target.value);
+      const hint = document.getElementById('durationHint');
+      const estimates = { 8: '~8-12', 12: '~12-18', 15: '~15-25', 20: '~20-35' };
+      hint.textContent = `~${estimates[dur]} seconds to render`;
+    });
+
+    // Add feature
+    function addFeature() {
+      const container = document.getElementById('featuresContainer');
+      const row = document.createElement('div');
+      row.className = 'feature-row';
+      row.innerHTML = `
+        <input type="text" placeholder="🔥" name="icon_${featureCount}" title="Emoji">
+        <input type="text" placeholder="Feature Name" name="title_${featureCount}" title="2-4 words">
+        <input type="text" placeholder="How it helps" name="desc_${featureCount}" title="Benefit">
+      `;
+      container.appendChild(row);
+      featureCount++;
+    }
+
+    // Form submit
+    document.getElementById('videoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isRendering) return;
+
+      const form = e.target;
+      const data = new FormData(form);
+
+      const features = [];
+      for (let i = 0; i < featureCount; i++) {
+        const icon = data.get(`icon_${i}`);
+        const title = data.get(`title_${i}`);
+        const desc = data.get(`desc_${i}`);
+        if (title) features.push({ icon: icon || '✨', title, desc: desc || '' });
+      }
+
+      if (features.length === 0) {
+        alert('Add at least one feature!');
+        return;
+      }
+
+      const config = {
+        platform: data.get('platform'),
+        duration: parseInt(data.get('duration')),
+        hook: data.get('hook'),
+        features,
+        cta: { text: data.get('ctaText'), url: 'aisolutionshub.org' },
+        style: {
+          primaryColor: data.get('primaryColor'),
+          secondaryColor: data.get('secondaryColor')
+        },
+        quality: data.get('quality') || 'high',
+        visualStyle: data.get('visualStyle') || 'dynamic',
+        audio: {
+          enabled: data.get('audioEnabled') === 'true',
+          hook: data.get('hook'),
+          features: features.map(f => `${f.title}: ${f.desc}`).join('. ')
+        },
+        prompt: data.get('prompt') || ''
+      };
+
+      await renderVideo(config);
+    });
+
+    // Main render function
+    async function renderVideo(config) {
+      isRendering = true;
+
+      const btn = document.getElementById('generateBtn');
+      const progressPanel = document.getElementById('progressPanel');
+      const progressFill = document.getElementById('progressFill');
+      const progressTitle = document.getElementById('progressTitle');
+      const progressStatus = document.getElementById('progressStatus');
+      const statFrame = document.getElementById('statFrame');
+      const statTime = document.getElementById('statTime');
+      const statETA = document.getElementById('statETA');
+      const canvasContainer = document.getElementById('canvas-container');
+      const downloadSection = document.getElementById('downloadSection');
+      const consoleEl = document.getElementById('console');
+
+      // Reset UI
+      btn.disabled = true;
+      btn.textContent = 'Rendering...';
+      progressPanel.classList.add('active');
+      canvasContainer.style.display = 'block';
+      downloadSection.classList.remove('active');
+      consoleEl.innerHTML = '';
+
+      // Config
+      const isVertical = ['instagram', 'tiktok', 'youtube'].includes(config.platform);
+      const width = isVertical ? 720 : 1280;
+      const height = isVertical ? 1280 : 720;
+      const fps = 30;
+      const duration = config.duration;
+      const totalFrames = fps * duration;
+
+      // Quality settings
+      const qualitySettings = {
+        standard: { videoBits: 2500000, label: 'Standard' },
+        high: { videoBits: 5000000, label: 'High' },
+        ultra: { videoBits: 8000000, label: 'Ultra' }
+      };
+      const quality = qualitySettings[config.quality] || qualitySettings.high;
+
+      log(`Starting render: ${width}x${height} @ ${fps}fps`, 'info');
+      log(`Quality: ${quality.label} | Platform: ${config.platform} | Duration: ${duration}s | Frames: ${totalFrames}`, 'info');
+      log(`Hook: "${config.hook}"`, 'info');
+      log(`Features: ${config.features.length}`, 'info');
+
+      // Canvas setup
+      const canvas = document.getElementById('video-canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // MediaRecorder setup
+      log('Initializing MediaRecorder...', 'info');
+
+      let mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm;codecs=vp8';
+        log('VP9 not supported, using VP8', 'warn');
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm';
+        log('VP8 not supported, using default', 'warn');
+      }
+
+      const canvasStream = canvas.captureStream(fps);
+      
+      // Audio setup
+      let audioContext, audioDestination, audioSource;
+      const combinedStream = new MediaStream();
+      
+      // Add video track
+      canvasStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+
+      if (config.audio?.enabled) {
+        log('Initializing audio narration...', 'info');
+        
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioDestination = audioContext.createMediaStreamDestination();
+        
+        // Add audio track to combined stream
+        audioDestination.stream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
+        
+        // Generate narration
+        await generateNarration(audioContext, audioDestination, config);
+        
+        log('Audio narration ready', 'success');
+      }
+
+      const mediaRecorder = new MediaRecorder(combinedStream, {
+        mimeType,
+        videoBitsPerSecond: quality.videoBits,
+        audioBitsPerSecond: 128000
+      });
+
+      log(`Codec: ${mimeType} | Bitrate: ${(quality.videoBits / 1000000).toFixed(1)}Mbps`, 'success');
+
+      const chunks = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById('downloadLink');
+        link.href = url;
+        link.download = `aisolutionshub-${config.platform}-${Date.now()}.webm`;
+
+        document.getElementById('downloadInfo').textContent =
+          `${config.platform.toUpperCase()} | ${duration}s | ${sizeMB}MB | ${width}x${height} | ${quality.label}`;
+
+        downloadSection.classList.add('active');
+        progressTitle.textContent = 'Complete!';
+        progressStatus.textContent = `Video saved: ${sizeMB}MB`;
+
+        btn.disabled = false;
+        btn.textContent = 'Generate Video';
+        isRendering = false;
+
+        log(`Render complete! ${sizeMB}MB`, 'success');
+        
+        // Cleanup
+        if (audioContext) audioContext.close();
+      };
+
+      mediaRecorder.onerror = (e) => {
+        log(`MediaRecorder error: ${e.error?.message || 'Unknown'}`, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Generate Video';
+        isRendering = false;
+      };
+
+      // Start recording
+      mediaRecorder.start(100);
+      log('Recording started...', 'success');
+
+      const renderStartTime = performance.now();
+
+      // Animation loop
+      function drawFrame() {
+        const elapsed = (performance.now() - renderStartTime) / 1000;
+        const frame = Math.floor(elapsed * fps);
+        const progressRatio = Math.min(frame / totalFrames, 1);
+
+        // Check if done
+        if (frame >= totalFrames) {
+          mediaRecorder.stop();
+          progressFill.style.width = '100%';
+          progressStatus.textContent = 'Finalizing video...';
+          log('All frames rendered, finalizing...', 'info');
+          return;
+        }
+
+        // Update stats
+        const elapsedSec = elapsed.toFixed(1);
+        const avgFps = frame / elapsed || 0;
+        const remainingFrames = totalFrames - frame;
+        const eta = avgFps > 0 ? (remainingFrames / avgFps).toFixed(0) : '--';
+
+        progressFill.style.width = `${progressRatio * 100}%`;
+        statFrame.textContent = `${frame}/${totalFrames}`;
+        statTime.textContent = `${elapsedSec}s`;
+        statETA.textContent = `${eta}s`;
+        progressStatus.textContent = `Rendering... ${Math.round(progressRatio * 100)}%`;
+        progressTitle.textContent = `Rendering ${config.platform.toUpperCase()} video`;
+
+        // Draw frame
+        drawScene(ctx, width, height, frame, totalFrames, config);
+
+        requestAnimationFrame(drawFrame);
+      }
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    // Generate narration using Web Speech API + AudioContext
+    async function generateNarration(audioContext, audioDestination, config) {
+      // Build narration text
+      let narrationText = config.audio.hook + '. ';
+      config.features.forEach(f => {
+        narrationText += `${f.title}: ${f.desc}. `;
+      });
+      narrationText += `Visit ${config.cta.url} to get started.`;
+
+      log(`Narration: "${narrationText.substring(0, 50)}..."`, 'info');
+
+      // Use SpeechSynthesis for voice generation
+      const utterance = new SpeechSynthesisUtterance(narrationText);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Try to get a good voice
+      const voices = speechSynthesis.getVoices();
+      const preferredVoice = voices.find(v => 
+        v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel')
+      ) || voices[0];
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+        log(`Voice: ${preferredVoice.name}`, 'success');
+      }
+
+      // Create audio from speech synthesis
+      // Since Web Speech API doesn't directly output to AudioContext,
+      // we'll use it for playback and capture system audio
+      // For now, we'll generate a simple audio track
+      
+      // Alternative: Generate background music
+      generateBackgroundMusic(audioContext, audioDestination, config.duration);
+      
+      // Speak during the video (will play through speakers, not recorded in webm)
+      // For true narration in video, we'd need a server-side TTS
+      setTimeout(() => {
+        speechSynthesis.speak(utterance);
+      }, 1500);
+    }
+
+    // Generate ambient background music
+    function generateBackgroundMusic(audioContext, destination, duration) {
+      const now = audioContext.currentTime;
+      
+      // Ambient pad
+      const pad = audioContext.createOscillator();
+      const padGain = audioContext.createGain();
+      const padFilter = audioContext.createBiquadFilter();
+      
+      pad.type = 'sine';
+      pad.frequency.setValueAtTime(220, now);
+      pad.frequency.linearRampToValueAtTime(330, now + duration);
+      
+      padFilter.type = 'lowpass';
+      padFilter.frequency.value = 800;
+      
+      padGain.gain.setValueAtTime(0, now);
+      padGain.gain.linearRampToValueAtTime(0.08, now + 1);
+      padGain.gain.setValueAtTime(0.08, now + duration - 2);
+      padGain.gain.linearRampToValueAtTime(0, now + duration);
+      
+      pad.connect(padFilter);
+      padFilter.connect(padGain);
+      padGain.connect(destination);
+      
+      pad.start(now);
+      pad.stop(now + duration);
+      
+      // Subtle arpeggio
+      const notes = [261.63, 329.63, 392.00, 523.25]; // C major chord
+      notes.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.03, now + 2 + i * 0.5);
+        gain.gain.setValueAtTime(0.03, now + duration - 3);
+        gain.gain.linearRampToValueAtTime(0, now + duration);
+        
+        osc.connect(gain);
+        gain.connect(destination);
+        
+        osc.start(now + i * 0.5);
+        osc.stop(now + duration);
+      });
+      
+      log('Background music generated', 'success');
+    }
+
+    // Visual style configs for Canvas
+    const CANVAS_STYLES = {
+      dynamic: {
+        bg: (ctx, w, h, frame, colors) => {
+          const t = frame / 360;
+          const hue1 = 270 + Math.sin(t * Math.PI * 2) * 20;
+          const hue2 = 300 + Math.cos(t * Math.PI * 2) * 15;
+          const gradient = ctx.createLinearGradient(0, 0, w, h);
+          gradient.addColorStop(0, `hsl(${hue1}, 60%, 12%)`);
+          gradient.addColorStop(0.5, `hsl(${hue2}, 50%, 18%)`);
+          gradient.addColorStop(1, `hsl(${hue1 + 30}, 55%, 10%)`);
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, w, h);
+          
+          // Floating shapes
+          for (let i = 0; i < 8; i++) {
+            const x = (Math.sin(i * 1.3 + frame * 0.01) * 0.4 + 0.5) * w;
+            const y = (Math.cos(i * 0.9 + frame * 0.008) * 0.4 + 0.5) * h;
+            const size = 20 + (i % 4) * 15;
+            const rotation = i * 30 + frame * 0.5;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = [colors.primary, colors.secondary, '#f59e0b'][i % 3];
+            if (i % 3 === 0) {
+              ctx.beginPath();
+              ctx.arc(0, 0, size, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (i % 3 === 1) {
+              ctx.fillRect(-size/2, -size/2, size, size);
+            } else {
+              ctx.beginPath();
+              ctx.moveTo(0, -size);
+              ctx.lineTo(size, size);
+              ctx.lineTo(-size, size);
+              ctx.closePath();
+              ctx.fill();
+            }
+            ctx.restore();
+          }
+        }
+      },
+      corporate: {
+        bg: (ctx, w, h, frame, colors) => {
+          const gradient = ctx.createLinearGradient(0, 0, w, h);
+          gradient.addColorStop(0, '#0f172a');
+          gradient.addColorStop(0.5, '#1e3a5f');
+          gradient.addColorStop(1, '#0c1929');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, w, h);
+          
+          // Dot pattern
+          ctx.globalAlpha = 0.03;
+          ctx.fillStyle = '#ffffff';
+          for (let x = 0; x < w; x += 30) {
+            for (let y = 0; y < h; y += 30) {
+              ctx.beginPath();
+              ctx.arc(x, y, 1, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+          ctx.globalAlpha = 1;
+          
+          // Gradient orbs
+          ctx.globalAlpha = 0.1;
+          const orbGrad1 = ctx.createRadialGradient(w * 0.8, h * 0.2, 0, w * 0.8, h * 0.2, 200);
+          orbGrad1.addColorStop(0, colors.primary);
+          orbGrad1.addColorStop(1, 'transparent');
+          ctx.fillStyle = orbGrad1;
+          ctx.fillRect(0, 0, w, h);
+          ctx.globalAlpha = 1;
+        }
+      },
+      minimal: {
+        bg: (ctx, w, h, frame, colors) => {
+          ctx.fillStyle = '#fafafa';
+          ctx.fillRect(0, 0, w, h);
+          
+          // Thin accent line
+          ctx.strokeStyle = colors.primary;
+          ctx.globalAlpha = 0.2;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(w * 0.1, h * 0.15);
+          ctx.lineTo(w * 0.9, h * 0.15);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          
+          // Subtle circles
+          ctx.strokeStyle = colors.primary;
+          ctx.globalAlpha = 0.08;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(w * 0.85, h * 0.5, 100, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(w * 0.85, h * 0.5, 140, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      },
+      tech: {
+        bg: (ctx, w, h, frame, colors) => {
+          ctx.fillStyle = '#0a0a0a';
+          ctx.fillRect(0, 0, w, h);
+          
+          // Grid
+          ctx.strokeStyle = `${colors.primary}08`;
+          ctx.lineWidth = 1;
+          for (let x = 0; x < w; x += 60) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, h);
+            ctx.stroke();
+          }
+          for (let y = 0; y < h; y += 60) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+          }
+          
+          // Data dots
+          for (let i = 0; i < 40; i++) {
+            const x = (i % 8) * (w / 8) + w / 16;
+            const y = Math.floor(i / 8) * (h / 5) + h / 10;
+            const opacity = 0.2 + Math.sin(frame * 0.05 + i) * 0.2;
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = colors.primary;
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          
+          // Scan line
+          const scanY = (frame * 2) % h;
+          const scanGrad = ctx.createLinearGradient(0, scanY - 1, 0, scanY + 1);
+          scanGrad.addColorStop(0, 'transparent');
+          scanGrad.addColorStop(0.5, `${colors.primary}30`);
+          scanGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = scanGrad;
+          ctx.fillRect(0, scanY - 1, w, 2);
+        }
+      },
+      bold: {
+        bg: (ctx, w, h, frame, colors) => {
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 0, w, h);
+          
+          // Animated color blocks
+          [0, 1, 2].forEach(i => {
+            const blockW = w * (0.3 + i * 0.1);
+            const blockH = h * (0.15 + i * 0.05);
+            const x = w * 0.1 + Math.sin(frame * 0.02 + i) * 50;
+            const y = h * (0.2 + i * 0.25) + Math.cos(frame * 0.015 + i) * 30;
+            const rotation = Math.sin(frame * 0.01 + i * 2) * 5;
+            const blockColors = [colors.primary, colors.secondary, '#eab308'];
+            
+            ctx.save();
+            ctx.translate(x + blockW/2, y + blockH/2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.globalAlpha = 0.12;
+            ctx.fillStyle = blockColors[i];
+            roundRect(ctx, -blockW/2, -blockH/2, blockW, blockH, 20);
+            ctx.fill();
+            ctx.restore();
+          });
+          
+          // Pulse rings
+          [0, 1, 2].forEach(i => {
+            const progress = ((frame * 0.02 + i * 0.33) % 1);
+            const size = progress * 400;
+            const opacity = (1 - progress) * 0.15;
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = colors.primary;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(w/2, h/2, size/2, 0, Math.PI * 2);
+            ctx.stroke();
+          });
+          ctx.globalAlpha = 1;
+        }
+      }
+    };
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    // Draw scene based on frame
+    function drawScene(ctx, width, height, frame, totalFrames, config) {
+      const styleName = config.visualStyle || 'dynamic';
+      const styleConfig = CANVAS_STYLES[styleName];
+      const colors = { primary: config.style.primaryColor, secondary: config.style.secondaryColor };
+      
+      // Draw background by style
+      if (styleConfig) {
+        styleConfig.bg(ctx, width, height, frame, colors);
+      }
+
+      // Scene timing
+      const sceneDuration = totalFrames / 5;
+      const scene = Math.floor(frame / sceneDuration);
+      const sceneProgress = (frame % sceneDuration) / sceneDuration;
+
+      if (scene === 0) {
+        const alpha = easeOut(sceneProgress);
+        ctx.globalAlpha = alpha;
+        drawLogo(ctx, width, height, config);
+        ctx.globalAlpha = 1;
+      } else if (scene === 1) {
+        drawHook(ctx, width, height, frame, sceneProgress, config);
+      } else if (scene >= 2 && scene <= 3) {
+        const featureIdx = scene - 2;
+        if (config.features[featureIdx]) {
+          const alpha = easeOut(sceneProgress);
+          const scale = 0.9 + alpha * 0.1;
+          ctx.globalAlpha = alpha;
+          ctx.save();
+          ctx.translate(width/2, height/2);
+          ctx.scale(scale, scale);
+          ctx.translate(-width/2, -height/2);
+          drawFeature(ctx, config.features[featureIdx], width, height, config);
+          ctx.restore();
+          ctx.globalAlpha = 1;
+        }
+      } else if (scene === 4) {
+        const alpha = easeOut(sceneProgress);
+        const pulse = 1 + Math.sin(frame * 0.1) * 0.02;
+        ctx.globalAlpha = alpha;
+        ctx.save();
+        ctx.translate(width/2, height/2);
+        ctx.scale(pulse, pulse);
+        ctx.translate(-width/2, -height/2);
+        drawCTA(ctx, config.cta, width, height, config.style, styleName);
+        ctx.restore();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Draw hook with word-by-word animation
+    function drawHook(ctx, width, height, frame, sceneProgress, config) {
+      const words = config.hook.split(' ');
+      const wordsToShow = Math.floor(sceneProgress * (words.length + 2));
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${width < 600 ? 36 : 48}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const lineH = (width < 600 ? 48 : 64) * 1.4;
+      const startY = height / 2 - (2 - 1) * lineH / 2;
+      
+      let currentLine = '';
+      let lineIndex = 0;
+      const maxW = width * 0.85;
+      
+      words.forEach((word, i) => {
+        if (i >= wordsToShow) return;
+        
+        const test = currentLine + word + ' ';
+        if (ctx.measureText(test).width > maxW && currentLine) {
+          const wordAlpha = Math.min(1, (wordsToShow - i) * 0.5);
+          ctx.globalAlpha = easeOut(wordAlpha);
+          ctx.fillText(currentLine.trim(), width / 2, startY + lineIndex * lineH);
+          lineIndex++;
+          currentLine = word + ' ';
+        } else {
+          currentLine = test;
+        }
+      });
+      
+      if (currentLine) {
+        ctx.globalAlpha = 1;
+        ctx.fillText(currentLine.trim(), width / 2, startY + lineIndex * lineH);
+      }
+      
+      // Accent line
+      const lineWidth = 60 * easeOut(sceneProgress);
+      ctx.fillStyle = config.style.primaryColor;
+      ctx.fillRect(width / 2 - lineWidth / 2, startY - 40, lineWidth, 4);
+    }
+
+    function easeOut(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function drawLogo(ctx, width, height, config) {
+      const boxSize = width < 600 ? 80 : 110;
+      const x = width / 2 - boxSize / 2;
+      const y = height / 2 - boxSize - 20;
+
+      ctx.fillStyle = config.style.primaryColor;
+      ctx.beginPath();
+      ctx.roundRect(x, y, boxSize, boxSize, 20);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${boxSize * 0.4}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AI', x + boxSize / 2, y + boxSize / 2);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${width < 600 ? 28 : 40}px Inter, sans-serif`;
+      ctx.fillText('AISolutionsHub', width / 2, y + boxSize + 45);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = `${width < 600 ? 16 : 22}px Inter, sans-serif`;
+      ctx.fillText('Your AI Automation Partner', width / 2, y + boxSize + 80);
+    }
+
+    function drawText(ctx, text, width, height, fontSize, bold) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `${bold ? 'bold ' : ''}${fontSize}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const words = text.split(' ');
+      const lines = [];
+      let current = '';
+      const maxW = width * 0.85;
+
+      for (const w of words) {
+        const test = current + w + ' ';
+        if (ctx.measureText(test).width > maxW && current) {
+          lines.push(current.trim());
+          current = w + ' ';
+        } else {
+          current = test;
+        }
+      }
+      lines.push(current.trim());
+
+      const lineH = fontSize * 1.4;
+      const startY = height / 2 - (lines.length - 1) * lineH / 2;
+      lines.forEach((l, i) => ctx.fillText(l, width / 2, startY + i * lineH));
+    }
+
+    function drawFeature(ctx, feature, width, height, config) {
+      const styleName = config.visualStyle || 'dynamic';
+      const isMinimal = styleName === 'minimal';
+      const isTech = styleName === 'tech';
+      const colors = config.style;
+      
+      const iconSize = width < 600 ? 48 : 72;
+      const titleSize = width < 600 ? 28 : 40;
+      const descSize = width < 600 ? 18 : 26;
+
+      // Feature card background
+      const cardW = width * 0.85;
+      const cardH = width < 600 ? 220 : 280;
+      const cardX = width / 2 - cardW / 2;
+      const cardY = height / 2 - cardH / 2;
+      
+      ctx.fillStyle = isMinimal ? '#ffffff' : 'rgba(30, 41, 59, 0.8)';
+      ctx.beginPath();
+      roundRect(ctx, cardX, cardY, cardW, cardH, isMinimal ? 0 : 24);
+      ctx.fill();
+      
+      ctx.strokeStyle = isMinimal ? colors.primary : colors.primary + '40';
+      ctx.lineWidth = isMinimal ? 2 : 1;
+      ctx.stroke();
+      
+      if (isTech) {
+        ctx.shadowColor = colors.primary;
+        ctx.shadowBlur = 30;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      // Icon container
+      const iconBoxSize = 80;
+      const iconBoxX = width / 2 - iconBoxSize / 2;
+      const iconBoxY = cardY + 20;
+      
+      ctx.fillStyle = isMinimal ? colors.primary + '08' : colors.primary + '20';
+      ctx.beginPath();
+      roundRect(ctx, iconBoxX, iconBoxY, iconBoxSize, iconBoxSize, isMinimal ? 0 : 20);
+      ctx.fill();
+      
+      ctx.font = `${iconSize}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(feature.icon, width / 2, iconBoxY + iconBoxSize / 2 + iconSize / 3);
+
+      // Title
+      ctx.fillStyle = isMinimal ? '#000000' : '#ffffff';
+      ctx.font = `bold ${titleSize}px Inter, sans-serif`;
+      ctx.fillText(feature.title, width / 2, height / 2 + 30);
+
+      // Description
+      ctx.fillStyle = isMinimal ? '#666666' : '#94a3b8';
+      ctx.font = `${descSize}px Inter, sans-serif`;
+      ctx.fillText(feature.desc, width / 2, height / 2 + 70);
+    }
+
+    function drawCTA(ctx, cta, width, height, style, styleName) {
+      const isMinimal = styleName === 'minimal';
+      const isBold = styleName === 'bold';
+      const isTech = styleName === 'tech';
+      const fontSize = width < 600 ? 22 : 30;
+      const btnW = width < 600 ? 240 : 320;
+      const btnH = width < 600 ? 55 : 70;
+
+      ctx.fillStyle = isMinimal ? '#000000' : '#e2e8f0';
+      ctx.font = `${fontSize}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Ready to transform your business?', width / 2, height / 2 - 80);
+      
+      ctx.fillStyle = isMinimal ? '#666666' : '#94a3b8';
+      ctx.font = `${fontSize - 4}px Inter, sans-serif`;
+      ctx.fillText('Join thousands of businesses already using AI', width / 2, height / 2 - 45);
+
+      const btnX = width / 2 - btnW / 2;
+      const btnY = height / 2 - btnH / 2;
+
+      const grad = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
+      grad.addColorStop(0, style.primaryColor);
+      grad.addColorStop(1, style.secondaryColor);
+      ctx.fillStyle = isMinimal ? style.primaryColor : grad;
+      ctx.beginPath();
+      roundRect(ctx, btnX, btnY, btnW, btnH, isMinimal ? 0 : 14);
+      ctx.fill();
+      
+      if (isTech) {
+        ctx.shadowColor = style.primaryColor;
+        ctx.shadowBlur = 30;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      } else if (!isMinimal) {
+        ctx.shadowColor = style.primaryColor;
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+      ctx.fillText(cta.text, width / 2, height / 2 + 5);
+
+      ctx.fillStyle = isMinimal ? '#999999' : '#64748b';
+      ctx.font = `${fontSize - 6}px Inter, sans-serif`;
+      ctx.fillText(cta.url, width / 2, height / 2 + 65);
+    }
+
+    function resetForm() {
+      document.getElementById('downloadSection').classList.remove('active');
+      document.getElementById('progressPanel').classList.remove('active');
+      document.getElementById('canvas-container').style.display = 'none';
+      document.getElementById('console').innerHTML = '';
+      document.getElementById('videoForm').reset();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
