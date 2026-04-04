@@ -2,438 +2,399 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
   <title>AI Video Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #020617;
+      --bg-secondary: #0F172A;
+      --bg-card: rgba(15, 23, 42, 0.8);
+      --primary: #2DD4BF;
+      --primary-dark: #14B8A6;
+      --accent: #2563EB;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --border: rgba(45, 212, 191, 0.15);
+      --border-focus: rgba(45, 212, 191, 0.4);
+      --glow: rgba(45, 212, 191, 0.15);
+      --success: #10B981;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html { font-size: 16px; }
     
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: #000000;
+      background: var(--bg);
       min-height: 100vh;
-      color: #ffffff;
+      min-height: 100dvh;
+      color: var(--text);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .bg-gradient {
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 80, 255, 0.15), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 100, 150, 0.1), transparent);
-      pointer-events: none;
-      z-index: 0;
+    /* Background glow */
+    .bg-glow {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(45, 212, 191, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(37, 99, 235, 0.06), transparent);
     }
 
     .app {
-      position: relative;
-      z-index: 1;
-      max-width: 680px;
+      position: relative; z-index: 1;
+      max-width: 560px;
       margin: 0 auto;
-      padding: 32px 24px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      padding: 20px 16px 32px;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; flex-direction: column;
     }
 
     /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
+    .header { text-align: center; margin-bottom: 24px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #7c3aed, #ec4899);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 800;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 900; color: var(--bg);
     }
-
-    .logo-text {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .tagline {
-      color: #71717a;
-      font-size: 15px;
-    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .logo-text span { color: var(--primary); }
+    .tagline { color: var(--text-muted); font-size: 14px; line-height: 1.4; }
 
     /* PACT Framework */
-    .pact-framework {
-      background: rgba(24, 24, 27, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
+    .pact {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px; margin-bottom: 16px;
+      backdrop-filter: blur(12px);
     }
-
     .pact-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #a1a1aa;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 16px;
-      text-align: center;
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 12px; text-align: center;
     }
-
-    .pact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
+    .pact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pact-item {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 14px;
-      cursor: pointer;
+      background: rgba(45, 212, 191, 0.04);
+      border: 1px solid rgba(45, 212, 191, 0.08);
+      border-radius: var(--radius-xs);
+      padding: 10px; cursor: pointer;
       transition: all 0.2s ease;
     }
-
-    .pact-item:hover {
-      background: rgba(124, 58, 237, 0.1);
-      border-color: rgba(124, 58, 237, 0.3);
-    }
-
+    .pact-item:active { transform: scale(0.97); }
+    .pact-item:hover { background: rgba(45, 212, 191, 0.1); border-color: var(--border-focus); }
     .pact-letter {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 800;
-      margin-bottom: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 6px;
+      font-size: 12px; font-weight: 800; margin-bottom: 4px;
+      background: rgba(45, 212, 191, 0.15); color: var(--primary);
     }
-
-    .pact-item:nth-child(1) .pact-letter { background: #7c3aed20; color: #a78bfa; }
-    .pact-item:nth-child(2) .pact-letter { background: #ec489920; color: #f472b6; }
-    .pact-item:nth-child(3) .pact-letter { background: #f59e0b20; color: #fbbf24; }
-    .pact-item:nth-child(4) .pact-letter { background: #10b98120; color: #34d399; }
-
-    .pact-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: #e4e4e7;
-      margin-bottom: 2px;
-    }
-
-    .pact-hint {
-      font-size: 11px;
-      color: #71717a;
-      line-height: 1.4;
-    }
+    .pact-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 1px; }
+    .pact-hint { font-size: 10px; color: var(--text-dim); line-height: 1.3; }
 
     /* Prompt area */
     .prompt-box {
-      position: relative;
-      background: rgba(24, 24, 27, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px;
       transition: all 0.3s ease;
+      backdrop-filter: blur(12px);
     }
-
     .prompt-box:focus-within {
-      border-color: rgba(124, 58, 237, 0.5);
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1), 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--glow), 0 8px 32px rgba(0,0,0,0.3);
     }
-
     .prompt-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #a1a1aa;
-      margin-bottom: 10px;
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
     }
-
+    .prompt-label .mic-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.3);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s ease; margin-left: auto;
+      font-size: 14px;
+    }
+    .prompt-label .mic-btn:active { transform: scale(0.9); }
+    .prompt-label .mic-btn.listening {
+      background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5);
+      animation: pulse-mic 1s ease infinite;
+    }
+    @keyframes pulse-mic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
     #mainPrompt {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: #ffffff;
-      font-size: 16px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      line-height: 1.6;
-      resize: none;
-      outline: none;
-      min-height: 100px;
+      width: 100%; background: transparent; border: none;
+      color: var(--text); font-size: 15px; font-family: 'Inter', sans-serif;
+      font-weight: 500; line-height: 1.6; resize: none; outline: none;
+      min-height: 80px;
     }
+    #mainPrompt::placeholder { color: var(--text-dim); }
 
-    #mainPrompt::placeholder {
-      color: #52525b;
-    }
-
-    /* Quick templates */
+    /* Templates */
     .templates {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-bottom: 12px;
     }
-
     .template-btn {
-      padding: 8px 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 7px 12px;
+      background: rgba(45, 212, 191, 0.06);
+      border: 1px solid rgba(45, 212, 191, 0.1);
       border-radius: 100px;
-      color: #a1a1aa;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: 'Inter', sans-serif;
-      white-space: nowrap;
+      color: var(--text-muted); font-size: 11px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif; white-space: nowrap;
     }
-
-    .template-btn:hover {
-      background: rgba(124, 58, 237, 0.15);
-      border-color: rgba(124, 58, 237, 0.3);
-      color: #c4b5fd;
-    }
+    .template-btn:active { transform: scale(0.95); }
+    .template-btn:hover { background: rgba(45, 212, 191, 0.15); border-color: var(--border-focus); color: var(--primary); }
 
     /* Options */
-    .options-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
+    .options-row { display: flex; gap: 8px; margin-bottom: 16px; }
     .option-select {
-      flex: 1;
-      padding: 12px 14px;
-      background: rgba(24, 24, 27, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: #ffffff;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
+      flex: 1; padding: 12px 14px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text); font-size: 13px; font-weight: 500;
+      font-family: 'Inter', sans-serif; cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
       padding-right: 32px;
     }
-
-    .option-select:focus { outline: none; border-color: rgba(124, 58, 237, 0.5); }
-    .option-select option { background: #18181b; color: #fff; }
+    .option-select:focus { outline: none; border-color: var(--border-focus); }
+    .option-select option { background: var(--bg-secondary); color: var(--text); }
 
     /* Generate button */
     .generate-btn {
-      width: 100%;
-      padding: 16px 24px;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border: none;
-      border-radius: 14px;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
+      width: 100%; padding: 16px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none; border-radius: var(--radius-sm);
+      color: var(--bg); font-size: 15px; font-weight: 800;
+      font-family: 'Inter', sans-serif; cursor: pointer;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 16px;
     }
-
-    .generate-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
-    }
-
+    .generate-btn:active:not(:disabled) { transform: scale(0.98); }
     .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
     .generate-btn .spinner {
       width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
+      border: 2px solid rgba(2, 6, 23, 0.3);
+      border-top-color: var(--bg);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       display: none;
     }
-
     .generate-btn.loading .spinner { display: block; }
     .generate-btn.loading .btn-text { display: none; }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Progress */
     .progress-panel {
-      background: rgba(24, 24, 27, 0.8);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 20px;
-      display: none;
-      margin-bottom: 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      display: none; margin-bottom: 16px;
+      backdrop-filter: blur(12px);
     }
-
     .progress-panel.active { display: block; }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .progress-title { font-weight: 600; font-size: 14px; }
-    .progress-stats { font-size: 12px; color: #71717a; display: flex; gap: 12px; }
-
-    .progress-bar {
-      height: 4px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .progress-title { font-weight: 600; font-size: 13px; }
+    .progress-stats { font-size: 11px; color: var(--text-dim); display: flex; gap: 10px; }
+    .progress-bar { height: 4px; background: rgba(45, 212, 191, 0.08); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
     .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #7c3aed, #a855f7);
-      border-radius: 2px;
-      width: 0%;
-      transition: width 0.3s ease;
+      height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px; width: 0%; transition: width 0.3s ease;
     }
-
-    .progress-status { font-size: 12px; color: #71717a; text-align: center; }
+    .progress-status { font-size: 11px; color: var(--text-dim); text-align: center; }
 
     /* Preview */
-    .preview-container {
-      text-align: center;
-      display: none;
-      margin-bottom: 20px;
-    }
-
+    .preview-container { text-align: center; display: none; margin-bottom: 16px; }
     .preview-container.active { display: block; }
-
     #videoCanvas {
-      width: 100%;
-      max-width: 320px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.1);
+      width: 100%; max-width: 280px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
       background: #000;
     }
 
     /* Download */
     .download-section {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      display: none;
-      margin-bottom: 20px;
+      border-radius: var(--radius); padding: 16px;
+      text-align: center; display: none; margin-bottom: 16px;
     }
-
     .download-section.active { display: block; }
-
-    .download-title { color: #10b981; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-    .download-info { color: #71717a; font-size: 13px; margin-bottom: 14px; }
-
+    .download-title { color: var(--success); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .download-info { color: var(--text-muted); font-size: 12px; margin-bottom: 12px; }
     .download-btn {
-      display: inline-block;
-      padding: 12px 28px;
-      background: #10b981;
-      color: #000;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      display: inline-block; padding: 12px 28px;
+      background: var(--success); color: var(--bg);
+      border-radius: var(--radius-xs); text-decoration: none;
+      font-weight: 700; font-size: 14px; transition: all 0.2s ease;
     }
-
-    .download-btn:hover { background: #34d399; transform: translateY(-2px); }
-
+    .download-btn:active { transform: scale(0.97); }
     .reset-btn {
-      margin-top: 10px;
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #71717a;
-      padding: 8px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 12px;
-      font-family: 'Inter', sans-serif;
+      margin-top: 8px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-dim);
+      padding: 8px 18px; border-radius: var(--radius-xs);
+      cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
     }
-
-    .reset-btn:hover { border-color: rgba(255,255,255,0.2); color: #a1a1aa; }
+    .reset-btn:active { transform: scale(0.97); }
 
     .footer {
-      text-align: center;
-      margin-top: auto;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      color: #52525b;
-      font-size: 11px;
+      text-align: center; margin-top: auto; padding-top: 16px;
+      border-top: 1px solid rgba(45, 212, 191, 0.06);
+      color: var(--text-dim); font-size: 10px;
+    }
+
+    /* ===== MOBILE RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .app { padding: 16px 12px 24px; }
+      .header { margin-bottom: 20px; }
+      .logo-text { font-size: 16px; }
+      .tagline { font-size: 13px; }
+      .pact { padding: 12px; margin-bottom: 12px; }
+      .pact-grid { gap: 6px; }
+      .pact-item { padding: 8px; }
+      .pact-name { font-size: 11px; }
+      .pact-hint { font-size: 9px; }
+      .prompt-box { padding: 12px; margin-bottom: 10px; }
+      #mainPrompt { font-size: 14px; min-height: 70px; }
+      .templates { gap: 5px; margin-bottom: 10px; }
+      .template-btn { padding: 6px 10px; font-size: 10px; }
+      .options-row { gap: 6px; margin-bottom: 12px; }
+      .option-select { padding: 10px 12px; font-size: 12px; }
+      .generate-btn { padding: 14px 20px; font-size: 14px; margin-bottom: 12px; }
+      .progress-panel { padding: 12px; margin-bottom: 12px; }
+      #videoCanvas { max-width: 240px; }
+    }
+
+    @media (max-width: 360px) {
+      .app { padding: 12px 10px 20px; }
+      .pact-grid { grid-template-columns: 1fr 1fr; gap: 5px; }
+      .pact-item { padding: 7px; }
+      .pact-letter { width: 20px; height: 20px; font-size: 10px; }
+      .pact-name { font-size: 10px; }
+      .pact-hint { font-size: 8px; }
+      #mainPrompt { font-size: 13px; }
+      .template-btn { padding: 5px 8px; font-size: 9px; }
+      .option-select { padding: 9px 10px; font-size: 11px; }
+      .generate-btn { padding: 12px 16px; font-size: 13px; }
+    }
+
+    /* Tablet */
+    @media (min-width: 768px) {
+      .app { max-width: 640px; padding: 32px 24px 40px; }
+      .header { margin-bottom: 28px; }
+      .logo-text { font-size: 20px; }
+      .tagline { font-size: 15px; }
+      #mainPrompt { font-size: 16px; min-height: 100px; }
+      .templates { gap: 8px; }
+      .template-btn { padding: 8px 14px; font-size: 12px; }
+      .option-select { padding: 14px 16px; font-size: 14px; }
+      .generate-btn { padding: 18px 28px; font-size: 16px; }
+      #videoCanvas { max-width: 320px; }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+      .app { max-width: 680px; padding: 40px 32px 48px; }
+    }
+
+    /* Voice input indicator */
+    .voice-indicator {
+      display: none; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; margin-bottom: 12px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-sm);
+      font-size: 13px; color: #fca5a5;
+    }
+    .voice-indicator.active { display: flex; }
+    .voice-bars { display: flex; gap: 3px; align-items: center; height: 20px; }
+    .voice-bars span {
+      width: 3px; background: #ef4444; border-radius: 2px;
+      animation: voice-bar 0.8s ease infinite;
+    }
+    .voice-bars span:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .voice-bars span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+    .voice-bars span:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+    .voice-bars span:nth-child(4) { height: 20px; animation-delay: 0.3s; }
+    .voice-bars span:nth-child(5) { height: 10px; animation-delay: 0.4s; }
+    @keyframes voice-bar {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1.5); }
     }
   </style>
 </head>
 <body>
-  <div class="bg-gradient"></div>
+  <div class="bg-glow"></div>
   
   <div class="app">
     <header class="header">
       <div class="logo">
         <div class="logo-icon">AI</div>
-        <span class="logo-text">Video Studio</span>
+        <span class="logo-text">AI Video <span>Studio</span></span>
       </div>
       <p class="tagline">Describe tu video. Nosotros lo creamos.</p>
     </header>
 
-    <!-- P-A-C-T Framework -->
-    <div class="pact-framework">
+    <!-- PACT Framework -->
+    <div class="pact">
       <div class="pact-title">Fórmula P-A-C-T para mejores resultados</div>
       <div class="pact-grid">
         <div class="pact-item" onclick="fillPact('P')">
           <div class="pact-letter">P</div>
           <div class="pact-name">Platform</div>
-          <div class="pact-hint">LinkedIn, TikTok, Instagram, YouTube</div>
+          <div class="pact-hint">LinkedIn, TikTok, Instagram</div>
         </div>
         <div class="pact-item" onclick="fillPact('A')">
           <div class="pact-letter">A</div>
           <div class="pact-name">Angle</div>
-          <div class="pact-hint">Hook: el gancho emocional o dato impactante</div>
+          <div class="pact-hint">Hook: dato impactante</div>
         </div>
         <div class="pact-item" onclick="fillPact('C')">
           <div class="pact-letter">C</div>
           <div class="pact-name">Content</div>
-          <div class="pact-hint">2-4 features, datos, beneficios clave</div>
+          <div class="pact-hint">2-4 features clave</div>
         </div>
         <div class="pact-item" onclick="fillPact('T')">
           <div class="pact-letter">T</div>
           <div class="pact-name">Target</div>
-          <div class="pact-hint">CTA: qué quieres que haga el viewer</div>
+          <div class="pact-hint">CTA: acción deseada</div>
         </div>
       </div>
     </div>
 
+    <!-- Voice indicator -->
+    <div class="voice-indicator" id="voiceIndicator">
+      <div class="voice-bars"><span></span><span></span><span></span><span></span><span></span></div>
+      Escuchando... habla ahora
+    </div>
+
     <!-- Prompt -->
     <div class="prompt-box">
-      <div class="prompt-label">Tu prompt</div>
-      <textarea id="mainPrompt" placeholder="LinkedIn | 5 beneficios de automatizar con IA: 70% menos costos, 24/7 sin pausas, cero errores, de horas a segundos, consistencia total | CTA: Descubre AI Solutions"></textarea>
+      <div class="prompt-label">
+        Describe tu video
+        <div class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Dictar con voz">🎤</div>
+      </div>
+      <textarea id="mainPrompt" placeholder="LinkedIn | 5 beneficios de automatizar con IA: 70% menos costos, 24/7 sin pausas, cero errores | CTA: Descubre AI Solutions"></textarea>
     </div>
 
     <!-- Templates -->
@@ -503,35 +464,69 @@
 
   <script>
     let isRendering = false;
+    let isListening = false;
+    let recognition = null;
 
-    // P-A-C-T Framework helpers
-    function fillPact(letter) {
-      const hints = {
-        P: 'Platform: LinkedIn, TikTok, Instagram, YouTube, Twitter/X',
-        A: 'Angle: El gancho — dato impactante, dolor, curiosidad',
-        C: 'Content: 2-4 features o beneficios con datos concretos',
-        T: 'Target: CTA — qué acción quieres del viewer'
+    // ===== VOICE INPUT =====
+    function initVoice() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      
+      recognition = new SpeechRecognition();
+      recognition.lang = 'es-ES';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (e) => {
+        let transcript = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+        }
+        const textarea = document.getElementById('mainPrompt');
+        if (e.results[e.results.length - 1].isFinal) {
+          textarea.value += (textarea.value ? ' ' : '') + transcript;
+        } else {
+          textarea.placeholder = transcript;
+        }
       };
+
+      recognition.onerror = () => stopVoice();
+      recognition.onend = () => { if (isListening) recognition.start(); };
+    }
+
+    function toggleVoice() {
+      if (!recognition) { alert('Tu navegador no soporta entrada por voz'); return; }
+      isListening ? stopVoice() : startVoice();
+    }
+
+    function startVoice() {
+      isListening = true;
+      document.getElementById('micBtn').classList.add('listening');
+      document.getElementById('voiceIndicator').classList.add('active');
+      recognition.start();
+    }
+
+    function stopVoice() {
+      isListening = false;
+      document.getElementById('micBtn').classList.remove('listening');
+      document.getElementById('voiceIndicator').classList.remove('active');
+      if (recognition) recognition.stop();
+    }
+
+    initVoice();
+
+    // PACT helpers
+    function fillPact(letter) {
       const examples = {
         P: 'LinkedIn | ',
         A: ' | 70% menos costos con IA ',
         C: ' | 24/7 sin pausas, cero errores, horas→segundos ',
         T: ' | CTA: Descubre AI Solutions'
       };
-      
       const textarea = document.getElementById('mainPrompt');
-      const current = textarea.value;
-      
-      if (!current) {
-        textarea.value = examples[letter];
-        textarea.focus();
-        return;
-      }
-      
-      // Insert at cursor or append
       const pos = textarea.selectionStart;
-      const before = current.substring(0, pos);
-      const after = current.substring(pos);
+      const before = textarea.value.substring(0, pos);
+      const after = textarea.value.substring(pos);
       textarea.value = before + examples[letter] + after;
       textarea.focus();
     }
@@ -545,14 +540,11 @@
       launch: 'TikTok | Algo grande llega: la IA que trabaja por ti mientras duermes, sin código, sin complicaciones | CTA: Regístrate para acceso anticipado'
     };
 
-    function setTemplate(type) {
-      document.getElementById('mainPrompt').value = TEMPLATES[type];
-    }
+    function setTemplate(type) { document.getElementById('mainPrompt').value = TEMPLATES[type]; }
 
-    // Parse P-A-C-T prompt
+    // Parse P-A-C-T
     function parsePrompt(prompt) {
       const parts = prompt.split('|').map(p => p.trim()).filter(p => p);
-      
       let platform = document.getElementById('platformSelect').value;
       let hook = 'Transform Your Business with AI';
       let features = [];
@@ -560,47 +552,27 @@
       let ctaUrl = 'aisolutionshub.org';
       let visualStyle = document.getElementById('styleSelect').value;
 
-      // Parse each part
       parts.forEach((part, i) => {
         const lower = part.toLowerCase();
-        
-        // Platform detection
-        if (i === 0 || lower.includes('linkedin') || lower.includes('tiktok') || lower.includes('instagram') || lower.includes('youtube') || lower.includes('twitter')) {
-          if (lower.includes('linkedin')) platform = 'linkedin';
-          else if (lower.includes('tiktok')) platform = 'tiktok';
-          else if (lower.includes('instagram') || lower.includes('insta')) platform = 'instagram';
-          else if (lower.includes('youtube')) platform = 'youtube';
-          else if (lower.includes('twitter') || lower.includes('x ')) platform = 'twitter';
-          
-          // Detect style from platform context
-          if (lower.includes('linkedin') && !document.getElementById('styleSelect').value) visualStyle = 'corporate';
-          if (lower.includes('tiktok') && !document.getElementById('styleSelect').value) visualStyle = 'bold';
-          if (lower.includes('tech') || lower.includes('código')) visualStyle = 'tech';
-          if (lower.includes('minimal') || lower.includes('limpio')) visualStyle = 'minimal';
-        }
-        
-        // CTA detection
+        if (lower.includes('linkedin')) platform = 'linkedin';
+        else if (lower.includes('tiktok')) platform = 'tiktok';
+        else if (lower.includes('instagram') || lower.includes('insta')) platform = 'instagram';
+        else if (lower.includes('youtube')) platform = 'youtube';
+        else if (lower.includes('twitter')) platform = 'twitter';
+
         if (lower.startsWith('cta') || lower.includes('cta:')) {
           const ctaContent = part.replace(/cta[:\s]*/i, '').trim();
           const urlMatch = ctaContent.match(/en\s+([\w.-]+\.\w+)/i);
-          if (urlMatch) {
-            ctaUrl = urlMatch[1];
-            ctaText = ctaContent.replace(/en\s+[\w.-]+\.\w+/i, '').trim();
-          } else {
-            ctaText = ctaContent.substring(0, 25);
-          }
+          if (urlMatch) { ctaUrl = urlMatch[1]; ctaText = ctaContent.replace(/en\s+[\w.-]+\.\w+/i, '').trim(); }
+          else ctaText = ctaContent.substring(0, 25);
           return;
         }
-        
-        // Hook: first meaningful part (not platform, not CTA)
+
         if (i === 1 || (i > 0 && !hook.includes('Transform'))) {
           const sentences = part.split(/[,;]/).filter(s => s.trim().length > 10);
-          if (sentences.length > 0) {
-            hook = sentences[0].trim().substring(0, 80);
-          }
+          if (sentences.length > 0) hook = sentences[0].trim().substring(0, 80);
         }
-        
-        // Features: look for colon-separated items or comma-separated benefits
+
         const colonItems = part.match(/([^:,]+):\s*([^,]+)/g);
         if (colonItems) {
           colonItems.forEach(item => {
@@ -608,36 +580,22 @@
             const desc = descParts.join(':').trim();
             if (title.trim().length > 2 && title.trim().length < 40) {
               const icons = ['⚡', '🤖', '🔒', '🎯', '💰', '🔄', '✅', '🚀'];
-              features.push({
-                icon: icons[features.length % icons.length],
-                title: title.trim().substring(0, 30),
-                desc: desc.substring(0, 60) || 'Learn more'
-              });
+              features.push({ icon: icons[features.length % icons.length], title: title.trim().substring(0, 30), desc: desc.substring(0, 60) || 'Learn more' });
             }
           });
         }
-        
-        // Fallback: split by commas
+
         if (features.length === 0) {
           const items = part.split(/[,;]/).filter(s => s.trim().length > 10 && s.trim().length < 80);
           const icons = ['⚡', '🤖', '🔒', '🎯', '💰', '🔄', '✅', '🚀'];
           items.slice(0, 4).forEach((item, idx) => {
-            features.push({
-              icon: icons[idx % icons.length],
-              title: item.trim().substring(0, 25),
-              desc: item.trim().substring(25, 70) || 'Key benefit'
-            });
+            features.push({ icon: icons[idx % icons.length], title: item.trim().substring(0, 25), desc: item.trim().substring(25, 70) || 'Key benefit' });
           });
         }
       });
 
-      // Ensure minimum features
       while (features.length < 2) {
-        const defaults = [
-          { icon: '⚡', title: 'Instant Setup', desc: 'Ready in minutes' },
-          { icon: '🤖', title: 'AI-Powered', desc: 'Smart automation' },
-          { icon: '🔒', title: 'Enterprise Security', desc: 'Bank-level protection' }
-        ];
+        const defaults = [{ icon: '⚡', title: 'Instant Setup', desc: 'Ready in minutes' }, { icon: '🤖', title: 'AI-Powered', desc: 'Smart automation' }, { icon: '🔒', title: 'Enterprise Security', desc: 'Bank-level protection' }];
         features.push(defaults[features.length]);
       }
 
@@ -651,10 +609,8 @@
       if (isRendering) return;
 
       const config = parsePrompt(prompt);
-      
       const btn = document.getElementById('generateBtn');
-      btn.classList.add('loading');
-      btn.disabled = true;
+      btn.classList.add('loading'); btn.disabled = true;
 
       document.getElementById('progressPanel').classList.add('active');
       document.getElementById('previewContainer').classList.add('active');
@@ -668,8 +624,7 @@
       const totalFrames = fps * duration;
 
       const canvas = document.getElementById('videoCanvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = width; canvas.height = height;
       const ctx = canvas.getContext('2d');
 
       let mimeType = 'video/webm;codecs=vp9';
@@ -686,69 +641,48 @@
         const blob = new Blob(chunks, { type: 'video/webm' });
         const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
         const url = URL.createObjectURL(blob);
-
         document.getElementById('downloadLink').href = url;
         document.getElementById('downloadLink').download = `video-${config.platform}-${Date.now()}.webm`;
         document.getElementById('downloadInfo').textContent = `${config.platform.toUpperCase()} • ${duration}s • ${sizeMB}MB • ${config.visualStyle}`;
-
         document.getElementById('downloadSection').classList.add('active');
         document.getElementById('progressTitle').textContent = '✅ Completo!';
         document.getElementById('progressStatus').textContent = `Video guardado: ${sizeMB}MB`;
-
-        btn.classList.remove('loading');
-        btn.disabled = false;
-        isRendering = false;
+        btn.classList.remove('loading'); btn.disabled = false; isRendering = false;
       };
 
-      mediaRecorder.start(100);
-      isRendering = true;
+      mediaRecorder.start(100); isRendering = true;
       const startTime = performance.now();
 
       function drawFrame() {
         const elapsed = (performance.now() - startTime) / 1000;
         const frame = Math.floor(elapsed * fps);
         const progress = Math.min(frame / totalFrames, 1);
-
-        if (frame >= totalFrames) {
-          mediaRecorder.stop();
-          document.getElementById('progressFill').style.width = '100%';
-          document.getElementById('progressStatus').textContent = 'Finalizando...';
-          return;
-        }
-
+        if (frame >= totalFrames) { mediaRecorder.stop(); document.getElementById('progressFill').style.width = '100%'; document.getElementById('progressStatus').textContent = 'Finalizando...'; return; }
         document.getElementById('progressFill').style.width = `${progress * 100}%`;
         document.getElementById('statFrame').textContent = `${frame}/${totalFrames}`;
         document.getElementById('statTime').textContent = `${elapsed.toFixed(1)}s`;
         document.getElementById('progressStatus').textContent = `Renderizando... ${Math.round(progress * 100)}%`;
-
         drawScene(ctx, width, height, frame, totalFrames, config);
         requestAnimationFrame(drawFrame);
       }
-
       requestAnimationFrame(drawFrame);
     }
 
-    // ===== SAFE ZONES 2026 =====
-    const SAFE_ZONES = {
-      tiktok: { top: 0.12, bottom: 0.22, left: 0.08, right: 0.08 },
-      instagram: { top: 0.08, bottom: 0.20, left: 0.06, right: 0.06 },
-      youtube: { top: 0.06, bottom: 0.15, left: 0.06, right: 0.06 },
-      linkedin: { top: 0.06, bottom: 0.12, left: 0.06, right: 0.06 },
-      twitter: { top: 0.06, bottom: 0.12, left: 0.06, right: 0.06 }
-    };
+    // ===== SAFE ZONES (pixels) =====
+    function getSafeZone(w, h) {
+      const scale = w / 1080;
+      return { top: Math.round(150 * scale), bottom: Math.round(170 * scale), left: Math.round(60 * scale), right: Math.round(60 * scale) };
+    }
 
-    // ===== VISUAL STYLES =====
+    // ===== STYLES (AISolutionsHub palette) =====
     const STYLES = {
       dynamic: {
-        colors: { primary: '#7c3aed', secondary: '#ec4899', accent: '#f59e0b', bg: '#1e0533', bgGrad: '#581c87', text: '#ffffff', muted: '#c4b5fd', cardBg: 'rgba(88,28,135,0.5)', cardBorder: 'rgba(124,58,237,0.3)' },
+        colors: { primary: '#2DD4BF', secondary: '#14B8A6', accent: '#2563EB', bg: '#020617', bgGrad: '#0F172A', text: '#F8FAFC', muted: '#94A3B8', cardBg: 'rgba(15,23,42,0.7)', cardBorder: 'rgba(45,212,191,0.3)', cardShadow: 'rgba(0,0,0,0.3)' },
         bg: (ctx, w, h, f, c) => {
           const t = f / 450;
           const g = ctx.createLinearGradient(0, 0, w, h);
-          g.addColorStop(0, `hsl(${270 + Math.sin(t * Math.PI * 2) * 20}, 60%, 12%)`);
-          g.addColorStop(0.5, `hsl(${300 + Math.cos(t * Math.PI * 2) * 15}, 50%, 18%)`);
-          g.addColorStop(1, `hsl(${290 + Math.sin(t * Math.PI) * 25}, 55%, 10%)`);
+          g.addColorStop(0, '#020617'); g.addColorStop(0.5, '#0F172A'); g.addColorStop(1, '#020617');
           ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-          // Floating shapes
           for (let i = 0; i < 15; i++) {
             const x = (Math.sin(i * 1.3 + f * 0.01) * 0.4 + 0.5) * w;
             const y = (Math.cos(i * 0.9 + f * 0.008) * 0.4 + 0.5) * h;
@@ -762,30 +696,26 @@
             else { ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill(); }
             ctx.restore();
           }
-          // Gradient orbs
-          ctx.globalAlpha = 0.15;
+          ctx.globalAlpha = 0.12;
           const og1 = ctx.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, 350);
           og1.addColorStop(0, c.primary); og1.addColorStop(1, 'transparent');
           ctx.fillStyle = og1; ctx.fillRect(0, 0, w, h);
           const og2 = ctx.createRadialGradient(w * 0.85, h * 0.9, 0, w * 0.85, h * 0.9, 280);
-          og2.addColorStop(0, c.secondary); og2.addColorStop(1, 'transparent');
+          og2.addColorStop(0, c.accent); og2.addColorStop(1, 'transparent');
           ctx.fillStyle = og2; ctx.fillRect(0, 0, w, h);
           ctx.globalAlpha = 1;
         }
       },
       corporate: {
-        colors: { primary: '#1a56db', secondary: '#3b82f6', accent: '#60a5fa', bg: '#0f172a', bgGrad: '#1e3a5f', text: '#ffffff', muted: '#94a3b8', cardBg: 'rgba(30,58,95,0.6)', cardBorder: 'rgba(59,130,246,0.3)' },
+        colors: { primary: '#2563EB', secondary: '#3B82F6', accent: '#60A5FA', bg: '#020617', bgGrad: '#0F172A', text: '#F8FAFC', muted: '#94A3B8', cardBg: 'rgba(15,23,42,0.7)', cardBorder: 'rgba(37,99,235,0.3)', cardShadow: 'rgba(0,0,0,0.3)' },
         bg: (ctx, w, h, f, c) => {
           const t = f / 360;
           const g = ctx.createLinearGradient(0, 0, w, h);
           g.addColorStop(0, c.bg); g.addColorStop(0.5, c.bgGrad); g.addColorStop(1, c.bg);
           ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-          // Dot pattern
           ctx.globalAlpha = 0.03; ctx.fillStyle = '#fff';
           const shiftX = Math.sin(t * Math.PI) * 50, shiftY = Math.cos(t * Math.PI * 0.7) * 30;
-          for (let x = 0; x < w; x += 24) for (let y = 0; y < h; y += 24) {
-            ctx.beginPath(); ctx.arc(x + shiftX, y + shiftY, 1, 0, Math.PI * 2); ctx.fill();
-          }
+          for (let x = 0; x < w; x += 24) for (let y = 0; y < h; y += 24) { ctx.beginPath(); ctx.arc(x + shiftX, y + shiftY, 1, 0, Math.PI * 2); ctx.fill(); }
           ctx.globalAlpha = 0.1;
           const og = ctx.createRadialGradient(w * 0.9, h * 0.1, 0, w * 0.9, h * 0.1, 300);
           og.addColorStop(0, c.primary); og.addColorStop(1, 'transparent');
@@ -794,11 +724,10 @@
         }
       },
       minimal: {
-        colors: { primary: '#000000', secondary: '#333333', accent: '#666666', bg: '#fafafa', bgGrad: '#f5f5f5', text: '#000000', muted: '#666666', cardBg: '#ffffff', cardBorder: '#e5e7eb' },
+        colors: { primary: '#020617', secondary: '#1E293B', accent: '#475569', bg: '#F8FAFC', bgGrad: '#F1F5F9', text: '#020617', muted: '#64748B', cardBg: '#FFFFFF', cardBorder: '#E2E8F0', cardShadow: 'rgba(0,0,0,0.08)' },
         bg: (ctx, w, h, f, c) => {
           ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
-          ctx.strokeStyle = c.primary; ctx.lineWidth = 1;
-          ctx.globalAlpha = 0.15;
+          ctx.strokeStyle = c.primary; ctx.lineWidth = 1; ctx.globalAlpha = 0.15;
           ctx.beginPath(); ctx.moveTo(w * 0.1, h * 0.15); ctx.lineTo(w * 0.9, h * 0.15); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(w * 0.1, h * 0.85); ctx.lineTo(w * 0.9, h * 0.85); ctx.stroke();
           ctx.globalAlpha = 0.08;
@@ -807,7 +736,7 @@
         }
       },
       tech: {
-        colors: { primary: '#10b981', secondary: '#06b6d4', accent: '#8b5cf6', bg: '#0a0a0a', bgGrad: '#111827', text: '#ffffff', muted: '#6ee7b7', cardBg: 'rgba(17,24,39,0.8)', cardBorder: 'rgba(16,185,129,0.3)' },
+        colors: { primary: '#10B981', secondary: '#14B8A6', accent: '#2DD4BF', bg: '#020617', bgGrad: '#0A0F1A', text: '#F8FAFC', muted: '#6EE7B7', cardBg: 'rgba(10,15,26,0.8)', cardBorder: 'rgba(16,185,129,0.3)', cardShadow: 'rgba(16,185,129,0.2)' },
         bg: (ctx, w, h, f, c) => {
           ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
           ctx.strokeStyle = `${c.primary}08`; ctx.lineWidth = 1;
@@ -826,7 +755,7 @@
         }
       },
       bold: {
-        colors: { primary: '#ef4444', secondary: '#f97316', accent: '#eab308', bg: '#000000', bgGrad: '#1a0000', text: '#ffffff', muted: '#fca5a5', cardBg: 'rgba(0,0,0,0.7)', cardBorder: 'rgba(239,68,68,0.4)' },
+        colors: { primary: '#2DD4BF', secondary: '#F59E0B', accent: '#EF4444', bg: '#020617', bgGrad: '#0A0F1A', text: '#F8FAFC', muted: '#99F6E4', cardBg: 'rgba(10,15,26,0.7)', cardBorder: 'rgba(45,212,191,0.4)', cardShadow: 'rgba(45,212,191,0.3)' },
         bg: (ctx, w, h, f, c) => {
           ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
           [0, 1, 2, 3].forEach(i => {
@@ -858,13 +787,12 @@
 
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
-    // ===== DRAW FUNCTIONS WITH SAFE ZONES =====
+    // ===== DRAW FUNCTIONS =====
     function drawScene(ctx, width, height, frame, totalFrames, config) {
       const styleName = config.visualStyle || 'dynamic';
       const style = STYLES[styleName] || STYLES.dynamic;
       const colors = style.colors;
-      const safeZone = SAFE_ZONES[config.platform] || SAFE_ZONES.tiktok;
-      
+      const sz = getSafeZone(width, height);
       style.bg(ctx, width, height, frame, colors);
 
       const sceneDuration = totalFrames / 5;
@@ -872,12 +800,12 @@
       const sceneProgress = (frame % sceneDuration) / sceneDuration;
 
       if (scene === 0) drawLogo(ctx, width, height, colors, styleName, sceneProgress);
-      else if (scene === 1) drawHook(ctx, width, height, config, colors, styleName, sceneProgress, safeZone);
+      else if (scene === 1) drawHook(ctx, width, height, config, colors, styleName, sceneProgress, sz);
       else if (scene >= 2 && scene <= 3) {
         const idx = scene - 2;
-        if (config.features[idx]) drawFeature(ctx, config.features[idx], width, height, colors, styleName, sceneProgress, safeZone);
+        if (config.features[idx]) drawFeature(ctx, config.features[idx], width, height, colors, styleName, sceneProgress, sz);
       }
-      else if (scene === 4) drawCTA(ctx, config.cta, width, height, colors, styleName, sceneProgress, safeZone);
+      else if (scene === 4) drawCTA(ctx, config.cta, width, height, colors, styleName, sceneProgress, sz);
     }
 
     function drawLogo(ctx, w, h, colors, styleName, p) {
@@ -885,72 +813,55 @@
       const scale = 0.85 + alpha * 0.15;
       const rotation = (1 - alpha) * -8;
       ctx.globalAlpha = alpha;
-      ctx.save();
-      ctx.translate(w/2, h/2);
-      ctx.scale(scale, scale);
-      ctx.rotate(rotation * Math.PI / 180);
-      ctx.translate(-w/2, -h/2);
+      ctx.save(); ctx.translate(w/2, h/2); ctx.scale(scale, scale); ctx.rotate(rotation * Math.PI / 180); ctx.translate(-w/2, -h/2);
       
       const boxSize = Math.min(w, h) * 0.15;
       const x = w/2 - boxSize/2, y = h/2 - boxSize - 30;
       
-      if (styleName === 'minimal') {
-        ctx.strokeStyle = colors.primary; ctx.lineWidth = 3;
-        ctx.strokeRect(x, y, boxSize, boxSize);
-      } else {
+      if (styleName === 'minimal') { ctx.strokeStyle = colors.primary; ctx.lineWidth = 3; ctx.strokeRect(x, y, boxSize, boxSize); }
+      else {
         const g = ctx.createLinearGradient(x, y, x + boxSize, y + boxSize);
         g.addColorStop(0, colors.primary); g.addColorStop(1, colors.secondary);
-        ctx.fillStyle = g;
-        roundRect(ctx, x, y, boxSize, boxSize, styleName === 'minimal' ? 0 : boxSize * 0.25);
-        ctx.fill();
-        // Shadow
-        ctx.shadowColor = colors.primary; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20;
-        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+        ctx.fillStyle = g; roundRect(ctx, x, y, boxSize, boxSize, styleName === 'minimal' ? 0 : boxSize * 0.25);
+        ctx.fill(); ctx.shadowColor = colors.primary; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
       }
       
       ctx.fillStyle = styleName === 'minimal' ? colors.primary : '#fff';
       ctx.font = `bold ${boxSize * 0.45}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('AI', w/2, y + boxSize/2);
-      
       ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
       ctx.font = `bold ${Math.min(w, h) * 0.06}px Inter, sans-serif`;
       ctx.fillText('AISolutionsHub', w/2, y + boxSize + 40);
-      
-      ctx.fillStyle = styleName === 'minimal' ? '#666' : '#94a3b8';
+      ctx.fillStyle = styleName === 'minimal' ? '#666' : '#94A3B8';
       ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
       ctx.globalAlpha = alpha * easeOut(Math.min(1, p * 2));
       ctx.fillText('Your AI Automation Partner', w/2, y + boxSize + 70);
-      
-      ctx.restore();
-      ctx.globalAlpha = 1;
+      ctx.restore(); ctx.globalAlpha = 1;
     }
 
-    function drawHook(ctx, w, h, config, colors, styleName, p, safeZone) {
+    function drawHook(ctx, w, h, config, colors, styleName, p, sz) {
       const words = config.hook.split(' ');
       const wordsPerSecond = styleName === 'bold' ? 6 : styleName === 'dynamic' ? 5 : 4;
       const wordsToShow = Math.floor(p * (words.length + 2));
       
-      // Accent line
       const lw = 80 * easeOut(p);
       ctx.fillStyle = colors.primary;
       ctx.fillRect(w/2 - lw/2, h * 0.35 - 20, lw, styleName === 'minimal' ? 1 : 4);
       
-      // Word-by-word kinetic text
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      const fontSize = Math.min(w, h) * 0.055;
+      const fontSize = Math.max(36, Math.min(w, h) * 0.055);
       const lineH = fontSize * 1.4;
       const startY = h * 0.42;
-      const maxW = w * (1 - safeZone.left - safeZone.right);
+      const maxW = w - sz.left - sz.right;
       
-      let currentLine = '', lineIndex = 0, wordCount = 0;
+      let currentLine = '', lineIndex = 0;
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       
       words.forEach((word, i) => {
         if (i >= wordsToShow) return;
         const test = currentLine + word + ' ';
         if (ctx.measureText(test).width > maxW && currentLine) {
-          const wordAlpha = easeOut(Math.min(1, (wordsToShow - lineIndex) * 0.5));
-          ctx.globalAlpha = wordAlpha;
+          ctx.globalAlpha = easeOut(Math.min(1, (wordsToShow - lineIndex) * 0.5));
           ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
           ctx.fillText(currentLine.trim(), w/2, startY + lineIndex * lineH);
           lineIndex++; currentLine = word + ' ';
@@ -958,122 +869,84 @@
       });
       if (currentLine) { ctx.globalAlpha = 1; ctx.fillText(currentLine.trim(), w/2, startY + lineIndex * lineH); }
       
-      // Subtitle
       ctx.globalAlpha = easeOut(Math.min(1, (p - 0.3) * 3));
       ctx.fillStyle = colors.muted;
-      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
+      ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
       ctx.fillText('Discover the future of automation', w/2, startY + (lineIndex + 1) * lineH + 16);
       ctx.globalAlpha = 1;
     }
 
-    function drawFeature(ctx, feature, w, h, colors, styleName, p, safeZone) {
+    function drawFeature(ctx, feature, w, h, colors, styleName, p, sz) {
       const alpha = easeOut(p);
       const scale = 0.9 + alpha * 0.1;
       const translateY = (1 - alpha) * 60;
-      
       ctx.globalAlpha = alpha;
-      ctx.save();
-      ctx.translate(w/2, h/2 + translateY);
-      ctx.scale(scale, scale);
-      ctx.translate(-w/2, -h/2);
+      ctx.save(); ctx.translate(w/2, h/2 + translateY); ctx.scale(scale, scale); ctx.translate(-w/2, -h/2);
       
       const cardW = Math.min(w * 0.85, 600);
       const cardH = Math.min(h * 0.35, 300);
       const cardX = w/2 - cardW/2, cardY = h/2 - cardH/2;
       
-      // Card background
       ctx.fillStyle = styleName === 'minimal' ? '#fff' : colors.cardBg;
-      roundRect(ctx, cardX, cardY, cardW, cardH, styleName === 'minimal' ? 0 : 24);
-      ctx.fill();
-      
-      // Card border
+      roundRect(ctx, cardX, cardY, cardW, cardH, styleName === 'minimal' ? 0 : 24); ctx.fill();
       ctx.strokeStyle = styleName === 'minimal' ? colors.primary : colors.cardBorder;
-      ctx.lineWidth = styleName === 'minimal' ? 2 : 1;
-      ctx.stroke();
+      ctx.lineWidth = styleName === 'minimal' ? 2 : 1; ctx.stroke();
+      if (styleName !== 'minimal') { ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 20; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
       
-      // Shadow for non-minimal
-      if (styleName !== 'minimal') {
-        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 20;
-        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      }
-      
-      // Icon container
       const iconSize = 72;
       const iconX = w/2 - iconSize/2, iconY = cardY + 16;
       ctx.fillStyle = styleName === 'minimal' ? `${colors.primary}08` : `${colors.primary}20`;
-      roundRect(ctx, iconX, iconY, iconSize, iconSize, styleName === 'minimal' ? 0 : 18);
-      ctx.fill();
-      ctx.strokeStyle = `${colors.primary}40`; ctx.lineWidth = 2;
-      ctx.stroke();
+      roundRect(ctx, iconX, iconY, iconSize, iconSize, styleName === 'minimal' ? 0 : 18); ctx.fill();
+      ctx.strokeStyle = `${colors.primary}40`; ctx.lineWidth = 2; ctx.stroke();
       
-      // Icon
       ctx.font = '36px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(feature.icon || '✨', w/2, iconY + iconSize/2);
       
-      // Title
       ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
-      ctx.font = `bold ${Math.min(w, h) * 0.04}px Inter, sans-serif`;
+      ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.04)}px Inter, sans-serif`;
       ctx.fillText(feature.title, w/2, h/2 + 20);
       
-      // Description
       ctx.fillStyle = styleName === 'minimal' ? '#666' : colors.muted;
-      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
+      ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
       ctx.fillText(feature.desc, w/2, h/2 + 60);
       
-      // Progress bar
       const barW = cardW * 0.66, barX = w/2 - barW/2, barY = cardY + cardH - 20;
-      ctx.fillStyle = `${colors.primary}20`;
-      roundRect(ctx, barX, barY, barW, 3, 2); ctx.fill();
-      ctx.fillStyle = colors.primary;
-      roundRect(ctx, barX, barY, barW * easeOut(p), 3, 2); ctx.fill();
+      ctx.fillStyle = `${colors.primary}20`; roundRect(ctx, barX, barY, barW, 3, 2); ctx.fill();
+      ctx.fillStyle = colors.primary; roundRect(ctx, barX, barY, barW * easeOut(p), 3, 2); ctx.fill();
       
-      ctx.restore();
-      ctx.globalAlpha = 1;
+      ctx.restore(); ctx.globalAlpha = 1;
     }
 
-    function drawCTA(ctx, cta, w, h, colors, styleName, p, safeZone) {
+    function drawCTA(ctx, cta, w, h, colors, styleName, p, sz) {
       const alpha = easeOut(p);
       const scale = 0.9 + alpha * 0.1;
       const pulse = 1 + Math.sin(p * Math.PI * 4) * 0.02;
-      
       ctx.globalAlpha = alpha;
-      ctx.save();
-      ctx.translate(w/2, h/2);
-      ctx.scale(scale * pulse, scale * pulse);
-      ctx.translate(-w/2, -h/2);
+      ctx.save(); ctx.translate(w/2, h/2); ctx.scale(scale * pulse, scale * pulse); ctx.translate(-w/2, -h/2);
       
-      ctx.fillStyle = styleName === 'minimal' ? '#000' : '#e2e8f0';
-      ctx.font = `bold ${Math.min(w, h) * 0.045}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = styleName === 'minimal' ? '#000' : '#E2E8F0';
+      ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.045)}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('Ready to transform your business?', w/2, h/2 - 70);
       
       ctx.fillStyle = styleName === 'minimal' ? '#666' : colors.muted;
-      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
+      ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
       ctx.fillText('Join thousands of businesses already using AI', w/2, h/2 - 35);
       
-      // Button
       const btnW = Math.min(w * 0.6, 320), btnH = 64;
       const btnX = w/2 - btnW/2, btnY = h/2 - btnH/2;
       const g = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
       g.addColorStop(0, colors.primary); g.addColorStop(1, colors.secondary);
       ctx.fillStyle = styleName === 'minimal' ? colors.primary : g;
-      roundRect(ctx, btnX, btnY, btnW, btnH, styleName === 'minimal' ? 0 : 14);
-      ctx.fill();
+      roundRect(ctx, btnX, btnY, btnW, btnH, styleName === 'minimal' ? 0 : 14); ctx.fill();
+      if (styleName !== 'minimal') { ctx.shadowColor = colors.primary; ctx.shadowBlur = 30; ctx.shadowOffsetY = 10; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
       
-      // Button shadow
-      if (styleName !== 'minimal') {
-        ctx.shadowColor = colors.primary; ctx.shadowBlur = 30; ctx.shadowOffsetY = 10;
-        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      }
-      
-      ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.min(w, h) * 0.028}px Inter, sans-serif`;
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.max(28, Math.min(w, h) * 0.028)}px Inter, sans-serif`;
       ctx.fillText(cta.text || 'Get Started', w/2, h/2 + 5);
       
-      ctx.fillStyle = styleName === 'minimal' ? '#999' : '#64748b';
-      ctx.font = `${Math.min(w, h) * 0.02}px Inter, sans-serif`;
+      ctx.fillStyle = styleName === 'minimal' ? '#999' : '#64748B';
+      ctx.font = `${Math.max(28, Math.min(w, h) * 0.02)}px Inter, sans-serif`;
       ctx.fillText(cta.url || 'aisolutionshub.org', w/2, h/2 + 60);
-      
-      ctx.restore();
-      ctx.globalAlpha = 1;
+      ctx.restore(); ctx.globalAlpha = 1;
     }
 
     function resetForm() {
