@@ -728,10 +728,19 @@
       requestAnimationFrame(drawFrame);
     }
 
+    // ===== SAFE ZONES 2026 =====
+    const SAFE_ZONES = {
+      tiktok: { top: 0.12, bottom: 0.22, left: 0.08, right: 0.08 },
+      instagram: { top: 0.08, bottom: 0.20, left: 0.06, right: 0.06 },
+      youtube: { top: 0.06, bottom: 0.15, left: 0.06, right: 0.06 },
+      linkedin: { top: 0.06, bottom: 0.12, left: 0.06, right: 0.06 },
+      twitter: { top: 0.06, bottom: 0.12, left: 0.06, right: 0.06 }
+    };
+
     // ===== VISUAL STYLES =====
     const STYLES = {
       dynamic: {
-        colors: { primary: '#7c3aed', secondary: '#ec4899' },
+        colors: { primary: '#7c3aed', secondary: '#ec4899', accent: '#f59e0b', bg: '#1e0533', bgGrad: '#581c87', text: '#ffffff', muted: '#c4b5fd', cardBg: 'rgba(88,28,135,0.5)', cardBorder: 'rgba(124,58,237,0.3)' },
         bg: (ctx, w, h, f, c) => {
           const t = f / 450;
           const g = ctx.createLinearGradient(0, 0, w, h);
@@ -739,80 +748,99 @@
           g.addColorStop(0.5, `hsl(${300 + Math.cos(t * Math.PI * 2) * 15}, 50%, 18%)`);
           g.addColorStop(1, `hsl(${290 + Math.sin(t * Math.PI) * 25}, 55%, 10%)`);
           ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-          for (let i = 0; i < 10; i++) {
+          // Floating shapes
+          for (let i = 0; i < 15; i++) {
             const x = (Math.sin(i * 1.3 + f * 0.01) * 0.4 + 0.5) * w;
             const y = (Math.cos(i * 0.9 + f * 0.008) * 0.4 + 0.5) * h;
-            const size = 20 + (i % 4) * 15, rot = i * 30 + f * 0.5;
+            const size = 20 + (i % 5) * 15, rot = i * 24 + f * 0.5;
             ctx.save(); ctx.translate(x, y); ctx.rotate(rot * Math.PI / 180);
-            ctx.globalAlpha = 0.08; ctx.fillStyle = [c.primary, c.secondary, '#f59e0b'][i % 3];
-            if (i % 3 === 0) { ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill(); }
-            else if (i % 3 === 1) { ctx.fillRect(-size/2, -size/2, size, size); }
-            else { ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size, size); ctx.lineTo(-size, size); ctx.closePath(); ctx.fill(); }
+            ctx.globalAlpha = 0.06 + Math.sin(f * 0.03 + i) * 0.03;
+            ctx.fillStyle = [c.primary, c.secondary, c.accent][i % 3];
+            if (i % 4 === 0) { ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill(); }
+            else if (i % 4 === 1) { ctx.fillRect(-size * 0.65, -size / 2, size * 1.3, size); }
+            else if (i % 4 === 2) { ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size, size); ctx.lineTo(-size, size); ctx.closePath(); ctx.fill(); }
+            else { ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill(); }
             ctx.restore();
           }
+          // Gradient orbs
+          ctx.globalAlpha = 0.15;
+          const og1 = ctx.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, 350);
+          og1.addColorStop(0, c.primary); og1.addColorStop(1, 'transparent');
+          ctx.fillStyle = og1; ctx.fillRect(0, 0, w, h);
+          const og2 = ctx.createRadialGradient(w * 0.85, h * 0.9, 0, w * 0.85, h * 0.9, 280);
+          og2.addColorStop(0, c.secondary); og2.addColorStop(1, 'transparent');
+          ctx.fillStyle = og2; ctx.fillRect(0, 0, w, h);
+          ctx.globalAlpha = 1;
         }
       },
       corporate: {
-        colors: { primary: '#1a56db', secondary: '#1e40af' },
+        colors: { primary: '#1a56db', secondary: '#3b82f6', accent: '#60a5fa', bg: '#0f172a', bgGrad: '#1e3a5f', text: '#ffffff', muted: '#94a3b8', cardBg: 'rgba(30,58,95,0.6)', cardBorder: 'rgba(59,130,246,0.3)' },
         bg: (ctx, w, h, f, c) => {
+          const t = f / 360;
           const g = ctx.createLinearGradient(0, 0, w, h);
-          g.addColorStop(0, '#0f172a'); g.addColorStop(0.5, '#1e3a5f'); g.addColorStop(1, '#0c1929');
+          g.addColorStop(0, c.bg); g.addColorStop(0.5, c.bgGrad); g.addColorStop(1, c.bg);
           ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          // Dot pattern
           ctx.globalAlpha = 0.03; ctx.fillStyle = '#fff';
-          for (let x = 0; x < w; x += 30) for (let y = 0; y < h; y += 30) { ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI * 2); ctx.fill(); }
+          const shiftX = Math.sin(t * Math.PI) * 50, shiftY = Math.cos(t * Math.PI * 0.7) * 30;
+          for (let x = 0; x < w; x += 24) for (let y = 0; y < h; y += 24) {
+            ctx.beginPath(); ctx.arc(x + shiftX, y + shiftY, 1, 0, Math.PI * 2); ctx.fill();
+          }
           ctx.globalAlpha = 0.1;
-          const og = ctx.createRadialGradient(w * 0.8, h * 0.2, 0, w * 0.8, h * 0.2, 200);
+          const og = ctx.createRadialGradient(w * 0.9, h * 0.1, 0, w * 0.9, h * 0.1, 300);
           og.addColorStop(0, c.primary); og.addColorStop(1, 'transparent');
           ctx.fillStyle = og; ctx.fillRect(0, 0, w, h);
           ctx.globalAlpha = 1;
         }
       },
       minimal: {
-        colors: { primary: '#000000', secondary: '#333333' },
+        colors: { primary: '#000000', secondary: '#333333', accent: '#666666', bg: '#fafafa', bgGrad: '#f5f5f5', text: '#000000', muted: '#666666', cardBg: '#ffffff', cardBorder: '#e5e7eb' },
         bg: (ctx, w, h, f, c) => {
-          ctx.fillStyle = '#fafafa'; ctx.fillRect(0, 0, w, h);
-          ctx.strokeStyle = c.primary; ctx.globalAlpha = 0.2; ctx.lineWidth = 1;
+          ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+          ctx.strokeStyle = c.primary; ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.15;
           ctx.beginPath(); ctx.moveTo(w * 0.1, h * 0.15); ctx.lineTo(w * 0.9, h * 0.15); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(w * 0.1, h * 0.85); ctx.lineTo(w * 0.9, h * 0.85); ctx.stroke();
           ctx.globalAlpha = 0.08;
-          ctx.beginPath(); ctx.arc(w * 0.85, h * 0.5, 100, 0, Math.PI * 2); ctx.stroke();
-          ctx.beginPath(); ctx.arc(w * 0.85, h * 0.5, 140, 0, Math.PI * 2); ctx.stroke();
+          [200, 280, 360].forEach(r => { ctx.beginPath(); ctx.arc(w * 0.85, h * 0.5, r, 0, Math.PI * 2); ctx.stroke(); });
           ctx.globalAlpha = 1;
         }
       },
       tech: {
-        colors: { primary: '#10b981', secondary: '#06b6d4' },
+        colors: { primary: '#10b981', secondary: '#06b6d4', accent: '#8b5cf6', bg: '#0a0a0a', bgGrad: '#111827', text: '#ffffff', muted: '#6ee7b7', cardBg: 'rgba(17,24,39,0.8)', cardBorder: 'rgba(16,185,129,0.3)' },
         bg: (ctx, w, h, f, c) => {
-          ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
           ctx.strokeStyle = `${c.primary}08`; ctx.lineWidth = 1;
-          for (let x = 0; x < w; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-          for (let y = 0; y < h; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-          for (let i = 0; i < 40; i++) {
-            const x = (i % 8) * (w / 8) + w / 16, y = Math.floor(i / 8) * (h / 5) + h / 10;
-            ctx.globalAlpha = 0.2 + Math.sin(f * 0.05 + i) * 0.2;
+          for (let x = 0; x < w; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+          for (let y = 0; y < h; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+          for (let i = 0; i < 50; i++) {
+            const x = (i % 10) * (w / 10) + w / 20, y = Math.floor(i / 10) * (h / 5) + h / 10;
+            ctx.globalAlpha = 0.15 + Math.sin(f * 0.05 + i) * 0.15;
             ctx.fillStyle = c.primary; ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
           }
           ctx.globalAlpha = 1;
-          const scanY = (f * 2) % h;
+          const scanY = (f * 1.5) % h;
           const sg = ctx.createLinearGradient(0, scanY - 1, 0, scanY + 1);
-          sg.addColorStop(0, 'transparent'); sg.addColorStop(0.5, `${c.primary}30`); sg.addColorStop(1, 'transparent');
+          sg.addColorStop(0, 'transparent'); sg.addColorStop(0.5, `${c.primary}20`); sg.addColorStop(1, 'transparent');
           ctx.fillStyle = sg; ctx.fillRect(0, scanY - 1, w, 2);
         }
       },
       bold: {
-        colors: { primary: '#ef4444', secondary: '#f97316' },
+        colors: { primary: '#ef4444', secondary: '#f97316', accent: '#eab308', bg: '#000000', bgGrad: '#1a0000', text: '#ffffff', muted: '#fca5a5', cardBg: 'rgba(0,0,0,0.7)', cardBorder: 'rgba(239,68,68,0.4)' },
         bg: (ctx, w, h, f, c) => {
-          ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
-          [0, 1, 2].forEach(i => {
-            const bw = w * (0.3 + i * 0.1), bh = h * (0.15 + i * 0.05);
-            const x = w * 0.1 + Math.sin(f * 0.02 + i) * 50, y = h * (0.2 + i * 0.25) + Math.cos(f * 0.015 + i) * 30;
-            const rot = Math.sin(f * 0.01 + i * 2) * 5;
+          ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+          [0, 1, 2, 3].forEach(i => {
+            const bw = w * (0.25 + i * 0.08), bh = h * (0.12 + i * 0.04);
+            const x = w * 0.05 + Math.sin(f * 0.015 + i * 1.5) * 60, y = h * (0.15 + i * 0.2) + Math.cos(f * 0.012 + i) * 40;
+            const rot = Math.sin(f * 0.008 + i * 2) * 8;
             ctx.save(); ctx.translate(x + bw/2, y + bh/2); ctx.rotate(rot * Math.PI / 180);
-            ctx.globalAlpha = 0.12; ctx.fillStyle = [c.primary, c.secondary, '#eab308'][i];
-            roundRect(ctx, -bw/2, -bh/2, bw, bh, 20); ctx.fill(); ctx.restore();
+            ctx.globalAlpha = 0.08 + Math.sin(f * 0.02 + i) * 0.04;
+            ctx.fillStyle = [c.primary, c.secondary, c.accent, c.primary][i];
+            roundRect(ctx, -bw/2, -bh/2, bw, bh, 16); ctx.fill(); ctx.restore();
           });
           [0, 1, 2].forEach(i => {
-            const p = ((f * 0.02 + i * 0.33) % 1), size = p * 400, op = (1 - p) * 0.15;
-            ctx.globalAlpha = op; ctx.strokeStyle = c.primary; ctx.lineWidth = 2;
+            const p = ((f * 0.015 + i * 0.33) % 1), size = p * 500, op = (1 - p) * 0.12;
+            ctx.globalAlpha = op; ctx.strokeStyle = c.primary; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.arc(w/2, h/2, size/2, 0, Math.PI * 2); ctx.stroke();
           });
           ctx.globalAlpha = 1;
@@ -830,10 +858,13 @@
 
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
+    // ===== DRAW FUNCTIONS WITH SAFE ZONES =====
     function drawScene(ctx, width, height, frame, totalFrames, config) {
       const styleName = config.visualStyle || 'dynamic';
       const style = STYLES[styleName] || STYLES.dynamic;
       const colors = style.colors;
+      const safeZone = SAFE_ZONES[config.platform] || SAFE_ZONES.tiktok;
+      
       style.bg(ctx, width, height, frame, colors);
 
       const sceneDuration = totalFrames / 5;
@@ -841,18 +872,27 @@
       const sceneProgress = (frame % sceneDuration) / sceneDuration;
 
       if (scene === 0) drawLogo(ctx, width, height, colors, styleName, sceneProgress);
-      else if (scene === 1) drawHook(ctx, width, height, config, colors, styleName, sceneProgress);
+      else if (scene === 1) drawHook(ctx, width, height, config, colors, styleName, sceneProgress, safeZone);
       else if (scene >= 2 && scene <= 3) {
         const idx = scene - 2;
-        if (config.features[idx]) drawFeature(ctx, config.features[idx], width, height, colors, styleName, sceneProgress);
+        if (config.features[idx]) drawFeature(ctx, config.features[idx], width, height, colors, styleName, sceneProgress, safeZone);
       }
-      else if (scene === 4) drawCTA(ctx, config.cta, width, height, colors, styleName, sceneProgress);
+      else if (scene === 4) drawCTA(ctx, config.cta, width, height, colors, styleName, sceneProgress, safeZone);
     }
 
     function drawLogo(ctx, w, h, colors, styleName, p) {
       const alpha = easeOut(p);
+      const scale = 0.85 + alpha * 0.15;
+      const rotation = (1 - alpha) * -8;
       ctx.globalAlpha = alpha;
-      const boxSize = 100, x = w/2 - boxSize/2, y = h/2 - boxSize - 30;
+      ctx.save();
+      ctx.translate(w/2, h/2);
+      ctx.scale(scale, scale);
+      ctx.rotate(rotation * Math.PI / 180);
+      ctx.translate(-w/2, -h/2);
+      
+      const boxSize = Math.min(w, h) * 0.15;
+      const x = w/2 - boxSize/2, y = h/2 - boxSize - 30;
       
       if (styleName === 'minimal') {
         ctx.strokeStyle = colors.primary; ctx.lineWidth = 3;
@@ -861,120 +901,175 @@
         const g = ctx.createLinearGradient(x, y, x + boxSize, y + boxSize);
         g.addColorStop(0, colors.primary); g.addColorStop(1, colors.secondary);
         ctx.fillStyle = g;
-        roundRect(ctx, x, y, boxSize, boxSize, styleName === 'minimal' ? 0 : 24);
+        roundRect(ctx, x, y, boxSize, boxSize, styleName === 'minimal' ? 0 : boxSize * 0.25);
         ctx.fill();
+        // Shadow
+        ctx.shadowColor = colors.primary; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20;
+        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
       }
       
       ctx.fillStyle = styleName === 'minimal' ? colors.primary : '#fff';
-      ctx.font = 'bold 44px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `bold ${boxSize * 0.45}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('AI', w/2, y + boxSize/2);
       
       ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
-      ctx.font = 'bold 36px Inter, sans-serif';
+      ctx.font = `bold ${Math.min(w, h) * 0.06}px Inter, sans-serif`;
       ctx.fillText('AISolutionsHub', w/2, y + boxSize + 40);
       
       ctx.fillStyle = styleName === 'minimal' ? '#666' : '#94a3b8';
-      ctx.font = '18px Inter, sans-serif';
+      ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
+      ctx.globalAlpha = alpha * easeOut(Math.min(1, p * 2));
       ctx.fillText('Your AI Automation Partner', w/2, y + boxSize + 70);
+      
+      ctx.restore();
       ctx.globalAlpha = 1;
     }
 
-    function drawHook(ctx, w, h, config, colors, styleName, p) {
+    function drawHook(ctx, w, h, config, colors, styleName, p, safeZone) {
       const words = config.hook.split(' ');
+      const wordsPerSecond = styleName === 'bold' ? 6 : styleName === 'dynamic' ? 5 : 4;
       const wordsToShow = Math.floor(p * (words.length + 2));
       
-      ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
-      ctx.font = `bold ${w < 600 ? 36 : 48}px Inter, sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      // Accent line
+      const lw = 80 * easeOut(p);
+      ctx.fillStyle = colors.primary;
+      ctx.fillRect(w/2 - lw/2, h * 0.35 - 20, lw, styleName === 'minimal' ? 1 : 4);
       
-      const lineH = 60, startY = h/2 - 30;
-      let currentLine = '', lineIndex = 0, maxW = w * 0.85;
+      // Word-by-word kinetic text
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const fontSize = Math.min(w, h) * 0.055;
+      const lineH = fontSize * 1.4;
+      const startY = h * 0.42;
+      const maxW = w * (1 - safeZone.left - safeZone.right);
+      
+      let currentLine = '', lineIndex = 0, wordCount = 0;
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       
       words.forEach((word, i) => {
         if (i >= wordsToShow) return;
         const test = currentLine + word + ' ';
         if (ctx.measureText(test).width > maxW && currentLine) {
-          ctx.globalAlpha = easeOut(Math.min(1, (wordsToShow - lineIndex) * 0.5));
+          const wordAlpha = easeOut(Math.min(1, (wordsToShow - lineIndex) * 0.5));
+          ctx.globalAlpha = wordAlpha;
+          ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
           ctx.fillText(currentLine.trim(), w/2, startY + lineIndex * lineH);
           lineIndex++; currentLine = word + ' ';
         } else currentLine = test;
       });
       if (currentLine) { ctx.globalAlpha = 1; ctx.fillText(currentLine.trim(), w/2, startY + lineIndex * lineH); }
       
-      const lw = 60 * easeOut(p);
-      ctx.fillStyle = colors.primary;
-      ctx.fillRect(w/2 - lw/2, startY - 40, lw, styleName === 'minimal' ? 1 : 4);
+      // Subtitle
+      ctx.globalAlpha = easeOut(Math.min(1, (p - 0.3) * 3));
+      ctx.fillStyle = colors.muted;
+      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
+      ctx.fillText('Discover the future of automation', w/2, startY + (lineIndex + 1) * lineH + 16);
       ctx.globalAlpha = 1;
     }
 
-    function drawFeature(ctx, feature, w, h, colors, styleName, p) {
+    function drawFeature(ctx, feature, w, h, colors, styleName, p, safeZone) {
       const alpha = easeOut(p);
       const scale = 0.9 + alpha * 0.1;
+      const translateY = (1 - alpha) * 60;
+      
       ctx.globalAlpha = alpha;
       ctx.save();
-      ctx.translate(w/2, h/2);
+      ctx.translate(w/2, h/2 + translateY);
       ctx.scale(scale, scale);
       ctx.translate(-w/2, -h/2);
       
-      const cardW = w * 0.85, cardH = 260, cardX = w/2 - cardW/2, cardY = h/2 - cardH/2;
+      const cardW = Math.min(w * 0.85, 600);
+      const cardH = Math.min(h * 0.35, 300);
+      const cardX = w/2 - cardW/2, cardY = h/2 - cardH/2;
       
-      ctx.fillStyle = styleName === 'minimal' ? '#fff' : 'rgba(30,41,59,0.8)';
+      // Card background
+      ctx.fillStyle = styleName === 'minimal' ? '#fff' : colors.cardBg;
       roundRect(ctx, cardX, cardY, cardW, cardH, styleName === 'minimal' ? 0 : 24);
       ctx.fill();
-      ctx.strokeStyle = styleName === 'minimal' ? colors.primary : colors.primary + '40';
+      
+      // Card border
+      ctx.strokeStyle = styleName === 'minimal' ? colors.primary : colors.cardBorder;
       ctx.lineWidth = styleName === 'minimal' ? 2 : 1;
       ctx.stroke();
       
-      ctx.font = '64px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(feature.icon || '✨', w/2, cardY + 60);
+      // Shadow for non-minimal
+      if (styleName !== 'minimal') {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 20;
+        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      }
       
+      // Icon container
+      const iconSize = 72;
+      const iconX = w/2 - iconSize/2, iconY = cardY + 16;
+      ctx.fillStyle = styleName === 'minimal' ? `${colors.primary}08` : `${colors.primary}20`;
+      roundRect(ctx, iconX, iconY, iconSize, iconSize, styleName === 'minimal' ? 0 : 18);
+      ctx.fill();
+      ctx.strokeStyle = `${colors.primary}40`; ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Icon
+      ctx.font = '36px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(feature.icon || '✨', w/2, iconY + iconSize/2);
+      
+      // Title
       ctx.fillStyle = styleName === 'minimal' ? '#000' : '#fff';
-      ctx.font = 'bold 32px Inter, sans-serif';
+      ctx.font = `bold ${Math.min(w, h) * 0.04}px Inter, sans-serif`;
       ctx.fillText(feature.title, w/2, h/2 + 20);
       
-      ctx.fillStyle = styleName === 'minimal' ? '#666' : '#94a3b8';
-      ctx.font = '20px Inter, sans-serif';
+      // Description
+      ctx.fillStyle = styleName === 'minimal' ? '#666' : colors.muted;
+      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
       ctx.fillText(feature.desc, w/2, h/2 + 60);
       
+      // Progress bar
       const barW = cardW * 0.66, barX = w/2 - barW/2, barY = cardY + cardH - 20;
-      ctx.fillStyle = styleName === 'minimal' ? '#e5e7eb' : colors.primary + '20';
+      ctx.fillStyle = `${colors.primary}20`;
       roundRect(ctx, barX, barY, barW, 3, 2); ctx.fill();
       ctx.fillStyle = colors.primary;
-      roundRect(ctx, barX, barY, barW * (p), 3, 2); ctx.fill();
+      roundRect(ctx, barX, barY, barW * easeOut(p), 3, 2); ctx.fill();
       
       ctx.restore();
       ctx.globalAlpha = 1;
     }
 
-    function drawCTA(ctx, cta, w, h, colors, styleName, p) {
+    function drawCTA(ctx, cta, w, h, colors, styleName, p, safeZone) {
       const alpha = easeOut(p);
+      const scale = 0.9 + alpha * 0.1;
       const pulse = 1 + Math.sin(p * Math.PI * 4) * 0.02;
+      
       ctx.globalAlpha = alpha;
       ctx.save();
       ctx.translate(w/2, h/2);
-      ctx.scale(pulse, pulse);
+      ctx.scale(scale * pulse, scale * pulse);
       ctx.translate(-w/2, -h/2);
       
       ctx.fillStyle = styleName === 'minimal' ? '#000' : '#e2e8f0';
-      ctx.font = '28px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.font = `bold ${Math.min(w, h) * 0.045}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('Ready to transform your business?', w/2, h/2 - 70);
       
-      ctx.fillStyle = styleName === 'minimal' ? '#666' : '#94a3b8';
-      ctx.font = '18px Inter, sans-serif';
+      ctx.fillStyle = styleName === 'minimal' ? '#666' : colors.muted;
+      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
       ctx.fillText('Join thousands of businesses already using AI', w/2, h/2 - 35);
       
-      const btnW = 280, btnH = 60, btnX = w/2 - btnW/2, btnY = h/2 - btnH/2;
+      // Button
+      const btnW = Math.min(w * 0.6, 320), btnH = 64;
+      const btnX = w/2 - btnW/2, btnY = h/2 - btnH/2;
       const g = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
       g.addColorStop(0, colors.primary); g.addColorStop(1, colors.secondary);
       ctx.fillStyle = styleName === 'minimal' ? colors.primary : g;
       roundRect(ctx, btnX, btnY, btnW, btnH, styleName === 'minimal' ? 0 : 14);
       ctx.fill();
       
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 22px Inter, sans-serif';
+      // Button shadow
+      if (styleName !== 'minimal') {
+        ctx.shadowColor = colors.primary; ctx.shadowBlur = 30; ctx.shadowOffsetY = 10;
+        ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      }
+      
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.min(w, h) * 0.028}px Inter, sans-serif`;
       ctx.fillText(cta.text || 'Get Started', w/2, h/2 + 5);
       
       ctx.fillStyle = styleName === 'minimal' ? '#999' : '#64748b';
-      ctx.font = '16px Inter, sans-serif';
+      ctx.font = `${Math.min(w, h) * 0.02}px Inter, sans-serif`;
       ctx.fillText(cta.url || 'aisolutionshub.org', w/2, h/2 + 60);
       
       ctx.restore();
