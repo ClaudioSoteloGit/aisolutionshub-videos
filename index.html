@@ -268,10 +268,17 @@
 
     <div class="prompt-box">
       <div class="prompt-label">
+        Tu marca
+      </div>
+      <input type="text" id="brandName" placeholder="Nombre de tu empresa" style="width:100%;background:transparent;border:none;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;font-weight:500;outline:none;padding:4px 0;" value="">
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">
         Describe tu video
         <div class="mic-btn" id="micBtn" onclick="toggleVoice()">🎤</div>
       </div>
-      <textarea id="mainPrompt" placeholder="Ej: Video para LinkedIn sobre los beneficios de automatizar con IA: 70% menos costos, operaciones 24/7, cero errores. CTA: Descubre AI Solutions"></textarea>
+      <textarea id="mainPrompt" placeholder="Ej: 5 beneficios de automatizar con IA: 70% menos costos, operaciones 24/7, cero errores. CTA: Descubre más en tuempresa.com"></textarea>
     </div>
 
     <div class="quick-templates">
@@ -354,17 +361,17 @@
 
     // Templates
     const TEMPLATES = {
-      benefits: 'LinkedIn | 5 beneficios de automatizar con IA: 70% menos costos, operaciones 24/7, cero errores humanos, de horas a segundos, consistencia 100% | CTA: Descubre AI Solutions en aisolutionshub.org',
-      promo: 'Instagram | Deja de perder 3 horas diarias en tareas manuales: setup en 5 minutos, IA inteligente, seguridad enterprise | CTA: Empieza gratis en aisolutionshub.org',
-      tutorial: 'YouTube | 3 pasos para automatizar tu negocio con IA: conecta tus herramientas, define reglas, deja que la IA trabaje | CTA: Pruébalo gratis',
-      testimonial: 'LinkedIn | Cómo ahorramos 20 horas semanales con IA: 70% menos costos, equipo enfocado en estrategia, resultados desde día 1 | CTA: Únete a miles de empresas'
+      benefits: 'LinkedIn | 5 beneficios de automatizar con IA: 70% menos costos, operaciones 24/7, cero errores humanos, de horas a segundos, consistencia 100% | CTA: Descubre más en tuempresa.com',
+      promo: 'Instagram | Deja de perder 3 horas diarias en tareas manuales: setup en 5 minutos, IA inteligente, seguridad enterprise | CTA: Empieza gratis en tuempresa.com',
+      tutorial: 'YouTube | 3 pasos para automatizar tu negocio: conecta tus herramientas, define reglas, deja que la IA trabaje | CTA: Pruébalo gratis en tuempresa.com',
+      testimonial: 'LinkedIn | Cómo ahorramos 20 horas semanales: 70% menos costos, equipo enfocado en estrategia, resultados desde día 1 | CTA: Únete a miles de empresas en tuempresa.com'
     };
     function setTemplate(t) { document.getElementById('mainPrompt').value = TEMPLATES[t]; }
 
     // Parse
     function parsePrompt(prompt) {
       const parts = prompt.split('|').map(p => p.trim()).filter(p => p);
-      let platform = 'tiktok', hook = 'Transform Your Business with AI', features = [], ctaText = 'Get Started', ctaUrl = 'aisolutionshub.org';
+      let platform = 'tiktok', hook = 'Transform Your Business Today', features = [], ctaText = 'Learn More', ctaUrl = 'yourwebsite.com';
 
       parts.forEach((part, i) => {
         const lower = part.toLowerCase();
@@ -378,7 +385,7 @@
           const cc = part.replace(/cta[:\s]*/i, '').trim();
           const um = cc.match(/en\s+([\w.-]+\.\w+)/i);
           if (um) { ctaUrl = um[1]; ctaText = cc.replace(/en\s+[\w.-]+\.\w+/i, '').trim(); }
-          else ctaText = cc.substring(0, 25);
+          else ctaText = cc.substring(0, 30);
           return;
         }
         if (i === 1) { const s = part.split(/[,;]/).filter(s => s.trim().length > 10); if (s.length > 0) hook = s[0].trim().substring(0, 80); }
@@ -390,7 +397,7 @@
             const desc = dp.join(':').trim();
             if (title.trim().length > 2 && title.trim().length < 40) {
               const icons = ['⚡', '🤖', '🔒', '🎯', '💰', '🔄', '✅', '🚀'];
-              features.push({ icon: icons[features.length % icons.length], title: title.trim().substring(0, 30), desc: desc.substring(0, 60) || 'Learn more' });
+              features.push({ icon: icons[features.length % icons.length], title: title.trim().substring(0, 35), desc: desc.substring(0, 70) || 'Key benefit' });
             }
           });
         }
@@ -398,17 +405,31 @@
           const items = part.split(/[,;]/).filter(s => s.trim().length > 10 && s.trim().length < 80);
           const icons = ['⚡', '🤖', '🔒', '🎯', '💰', '🔄', '✅', '🚀'];
           items.slice(0, 4).forEach((item, idx) => {
-            features.push({ icon: icons[idx % icons.length], title: item.trim().substring(0, 25), desc: item.trim().substring(25, 70) || 'Key benefit' });
+            features.push({ icon: icons[idx % icons.length], title: item.trim().substring(0, 30), desc: item.trim().substring(30, 70) || 'Key benefit' });
           });
         }
       });
 
       while (features.length < 2) {
-        const d = [{ icon: '⚡', title: 'Instant Setup', desc: 'Ready in minutes' }, { icon: '🤖', title: 'AI-Powered', desc: 'Smart automation' }];
+        const d = [{ icon: '⚡', title: 'Instant Setup', desc: 'Ready in minutes' }, { icon: '🤖', title: 'Smart Automation', desc: 'AI-powered workflows' }];
         features.push(d[features.length]);
       }
 
-      return { platform, hook, features: features.slice(0, 4), cta: { text: ctaText, url: ctaUrl }, duration: 15 };
+      const brandName = document.getElementById('brandName')?.value?.trim() || 'Your Brand';
+
+      return {
+        brandName,
+        platform,
+        hook,
+        features: features.slice(0, 4),
+        cta: {
+          headline: 'Ready to get started?',
+          subtitle: 'Take the first step today',
+          text: ctaText,
+          url: ctaUrl
+        },
+        duration: 15
+      };
     }
 
     // Render
@@ -502,7 +523,7 @@
       const p = (frame % sceneDuration) / sceneDuration;
       const alpha = easeOut(p);
 
-      if (scene === 0) drawCinematicLogo(ctx, w, h, alpha, frame);
+      if (scene === 0) drawCinematicLogo(ctx, w, h, config.brandName, alpha, frame);
       else if (scene === 1) drawCinematicHook(ctx, w, h, config.hook, alpha, frame);
       else if (scene >= 2 && scene <= 3) {
         const idx = scene - 2;
@@ -513,13 +534,15 @@
 
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
-    function drawCinematicLogo(ctx, w, h, alpha, frame) {
+    function drawCinematicLogo(ctx, w, h, brandName, alpha, frame) {
       const scale = 0.85 + alpha * 0.15;
       ctx.save(); ctx.translate(w/2, h/2); ctx.scale(scale, scale); ctx.translate(-w/2, -h/2);
       ctx.globalAlpha = alpha;
 
       const boxSize = Math.min(w, h) * 0.15;
       const x = w/2 - boxSize/2, y = h/2 - boxSize - 30;
+      const name = brandName || 'Your Brand';
+      const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
       // Glow
       ctx.shadowColor = BRAND.primary; ctx.shadowBlur = 60;
@@ -531,14 +554,14 @@
 
       ctx.fillStyle = '#000'; ctx.font = `bold ${boxSize * 0.45}px Inter, sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('AI', w/2, y + boxSize/2);
+      ctx.fillText(initials, w/2, y + boxSize/2);
 
       ctx.fillStyle = BRAND.text; ctx.font = `bold ${Math.min(w, h) * 0.06}px Inter, sans-serif`;
-      ctx.fillText('AISolutionsHub', w/2, y + boxSize + 40);
+      ctx.fillText(name, w/2, y + boxSize + 40);
 
       ctx.fillStyle = BRAND.muted; ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
       ctx.globalAlpha = alpha * easeOut(Math.min(1, (frame % 90) / 30 * 2));
-      ctx.fillText('Your AI Automation Partner', w/2, y + boxSize + 70);
+      ctx.fillText('Innovation starts here', w/2, y + boxSize + 70);
       ctx.restore(); ctx.globalAlpha = 1;
     }
 
@@ -548,7 +571,7 @@
       ctx.fillStyle = BRAND.primary;
       ctx.fillRect(w/2 - lw/2, h * 0.35 - 20, lw, 2);
 
-      // Masked word reveal
+      // Word reveal
       const words = hook.split(' ');
       const wordsPerSecond = 4;
       const wordsToShow = Math.floor(((frame % 90) / 90) * (words.length + 2));
@@ -576,7 +599,7 @@
       ctx.globalAlpha = easeOut(Math.min(1, ((frame % 90) - 15) / 15));
       ctx.fillStyle = BRAND.muted;
       ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
-      ctx.fillText('The future of automation is here', w/2, startY + (lineIndex + 1) * lineH + 16);
+      ctx.fillText('Discover what is possible', w/2, startY + (lineIndex + 1) * lineH + 16);
       ctx.globalAlpha = 1;
     }
 
@@ -603,12 +626,33 @@
       ctx.font = '36px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(feature.icon || '✨', w/2, iconY + iconSize/2);
 
-      // Title
-      ctx.fillStyle = BRAND.text; ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.04)}px Inter, sans-serif`;
-      ctx.fillText(feature.title, w/2, h/2 + 20);
+      // Check for stat number in title
+      const numMatch = feature.title.match(/(\d+%?)/);
+      if (numMatch) {
+        const num = parseInt(numMatch[1]);
+        const suffix = numMatch[1].replace(/[0-9]/g, '');
+        const progress = Math.min(1, ((frame % 90) / 90) * 1.5);
+        const displayNum = Math.floor(num * progress);
+        
+        ctx.fillStyle = BRAND.primary;
+        ctx.font = `bold ${Math.max(48, Math.min(w, h) * 0.08)}px Inter, sans-serif`;
+        ctx.fillText(`${displayNum}${suffix}`, w/2, h/2 - 10);
+        
+        const cleanTitle = feature.title.replace(numMatch[0], '').trim();
+        if (cleanTitle) {
+          ctx.fillStyle = BRAND.muted;
+          ctx.font = `${Math.max(24, Math.min(w, h) * 0.03)}px Inter, sans-serif`;
+          ctx.fillText(cleanTitle, w/2, h/2 + 25);
+        }
+      } else {
+        ctx.fillStyle = BRAND.text;
+        ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.04)}px Inter, sans-serif`;
+        ctx.fillText(feature.title, w/2, h/2 + 20);
+      }
 
       // Desc
-      ctx.fillStyle = BRAND.muted; ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
+      ctx.fillStyle = BRAND.muted;
+      ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
       ctx.fillText(feature.desc, w/2, h/2 + 60);
 
       // Progress
@@ -625,25 +669,36 @@
       ctx.save(); ctx.translate(w/2, h/2); ctx.scale(scale * pulse, scale * pulse); ctx.translate(-w/2, -h/2);
       ctx.globalAlpha = alpha;
 
-      ctx.fillStyle = BRAND.text; ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.045)}px Inter, sans-serif`;
+      // Headline
+      ctx.fillStyle = BRAND.text;
+      ctx.font = `bold ${Math.max(36, Math.min(w, h) * 0.045)}px Inter, sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('Ready to transform your business?', w/2, h/2 - 70);
+      ctx.fillText(cta.headline || 'Ready to get started?', w/2, h/2 - 70);
 
-      ctx.fillStyle = BRAND.muted; ctx.font = `${Math.max(28, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
-      ctx.fillText('Join thousands of businesses already using AI', w/2, h/2 - 35);
+      // Subtitle
+      ctx.fillStyle = BRAND.muted;
+      ctx.font = `${Math.max(24, Math.min(w, h) * 0.022)}px Inter, sans-serif`;
+      ctx.fillText(cta.subtitle || 'Take the first step today', w/2, h/2 - 30);
 
-      const btnW = Math.min(w * 0.6, 320), btnH = 64;
-      const btnX = w/2 - btnW/2, btnY = h/2 - btnH/2;
+      // Button
+      const btnW = Math.min(w * 0.6, 300), btnH = 60;
+      const btnX = w/2 - btnW/2, btnY = h/2;
       const bg = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
       bg.addColorStop(0, BRAND.primary); bg.addColorStop(1, BRAND.accent);
       ctx.fillStyle = bg; roundRect(ctx, btnX, btnY, btnW, btnH, 14); ctx.fill();
       ctx.shadowColor = BRAND.primary; ctx.shadowBlur = 40; ctx.shadowOffsetY = 10; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
-      ctx.fillStyle = '#000'; ctx.font = `bold ${Math.max(28, Math.min(w, h) * 0.028)}px Inter, sans-serif`;
-      ctx.fillText(cta.text || 'Get Started', w/2, h/2 + 5);
+      ctx.fillStyle = '#000';
+      ctx.font = `bold ${Math.max(24, Math.min(w, h) * 0.026)}px Inter, sans-serif`;
+      ctx.fillText(cta.text || 'Learn More', w/2, h/2 + 30);
 
-      ctx.fillStyle = '#64748B'; ctx.font = `${Math.max(28, Math.min(w, h) * 0.02)}px Inter, sans-serif`;
-      ctx.fillText(cta.url || 'aisolutionshub.org', w/2, h/2 + 60);
+      // URL
+      if (cta.url) {
+        ctx.fillStyle = '#64748B';
+        ctx.font = `${Math.max(22, Math.min(w, h) * 0.02)}px Inter, sans-serif`;
+        ctx.fillText(cta.url, w/2, h/2 + 70);
+      }
+
       ctx.restore(); ctx.globalAlpha = 1;
     }
 
